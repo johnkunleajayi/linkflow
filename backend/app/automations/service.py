@@ -34,8 +34,7 @@ class AutomationService:
         new_automation = Automation(
             workspace_id=workspace.id,
             name=automation.name,
-            trigger_type=automation.trigger_type,
-            action_type=automation.action_type
+            description=automation.description
         )
 
         db.add(new_automation)
@@ -43,7 +42,6 @@ class AutomationService:
         db.refresh(new_automation)
 
         return new_automation
-
 
     @staticmethod
     def get_automations(
@@ -72,7 +70,6 @@ class AutomationService:
             .all()
         )
 
-
     @staticmethod
     def update_automation(
         db: Session,
@@ -97,11 +94,8 @@ class AutomationService:
         if automation.name is not None:
             existing_automation.name = automation.name
 
-        if automation.trigger_type is not None:
-            existing_automation.trigger_type = automation.trigger_type
-
-        if automation.action_type is not None:
-            existing_automation.action_type = automation.action_type
+        if automation.description is not None:
+            existing_automation.description = automation.description
 
         if automation.status is not None:
             existing_automation.status = automation.status
@@ -110,7 +104,6 @@ class AutomationService:
         db.refresh(existing_automation)
 
         return existing_automation
-
 
     @staticmethod
     def delete_automation(
