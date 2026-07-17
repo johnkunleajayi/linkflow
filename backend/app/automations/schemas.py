@@ -5,14 +5,12 @@ from pydantic import BaseModel
 
 class AutomationCreate(BaseModel):
     name: str
-    trigger_type: str
-    action_type: str
+    description: str | None = None
 
 
 class AutomationUpdate(BaseModel):
     name: str | None = None
-    trigger_type: str | None = None
-    action_type: str | None = None
+    description: str | None = None
     status: str | None = None
 
 
@@ -20,8 +18,7 @@ class AutomationResponse(BaseModel):
     id: int
     workspace_id: int
     name: str
-    trigger_type: str
-    action_type: str
+    description: str | None = None
     status: str
     created_at: datetime
 

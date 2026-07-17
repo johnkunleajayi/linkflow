@@ -31,14 +31,9 @@ class Automation(Base):
         nullable=False
     )
 
-    trigger_type = Column(
-        String(100),
-        nullable=False
-    )
-
-    action_type = Column(
-        String(100),
-        nullable=False
+    description = Column(
+        String(500),
+        nullable=True
     )
 
     status = Column(
@@ -54,4 +49,16 @@ class Automation(Base):
     workspace = relationship(
         "Workspace",
         back_populates="automations"
+    )
+
+    triggers = relationship(
+        "AutomationTrigger",
+        back_populates="automation",
+        cascade="all, delete-orphan"
+    )
+
+    actions = relationship(
+        "AutomationAction",
+        back_populates="automation",
+        cascade="all, delete-orphan"
     )

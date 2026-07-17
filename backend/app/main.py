@@ -1,24 +1,30 @@
 from fastapi import FastAPI
 
-# Import models so Alembic knows about them
+# Import models so Alembic and SQLAlchemy know about them
 from app.auth.models import User
 from app.workspaces.models import Workspace
 from app.social_accounts.models import SocialAccount
+from app.automations.models import Automation
+
 
 # Import routers
 from app.auth.router import router as auth_router
 from app.workspaces.router import router as workspace_router
 from app.social_accounts.router import router as social_account_router
+from app.automations.router import router as automation_router
+
 
 app = FastAPI(
     title="LinkFlow API",
     version="1.0.0"
 )
 
+
 # Register routers
 app.include_router(auth_router)
 app.include_router(workspace_router)
 app.include_router(social_account_router)
+app.include_router(automation_router)
 
 
 @app.get("/")
