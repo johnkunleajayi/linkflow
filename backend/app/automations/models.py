@@ -50,3 +50,15 @@ class Automation(Base):
         "Workspace",
         back_populates="automations"
     )
+
+    triggers = relationship(
+        "AutomationTrigger",
+        back_populates="automation",
+        cascade="all, delete-orphan"
+    )
+
+    actions = relationship(
+        "AutomationAction",
+        back_populates="automation",
+        cascade="all, delete-orphan"
+    )

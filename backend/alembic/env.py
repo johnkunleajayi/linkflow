@@ -10,7 +10,10 @@ from app.database.database import Base
 # Import ALL models here
 from app.auth.models import User
 from app.workspaces.models import Workspace
+from app.social_accounts.models import SocialAccount
 from app.automations.models import Automation
+from app.automation_triggers.models import AutomationTrigger
+from app.automation_actions.models import AutomationAction
 
 config = context.config
 
