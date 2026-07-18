@@ -31,6 +31,9 @@ from app.execution_logs.router import (
 from app.connections.router import (
     router as connection_router
 )
+from app.oauth.router import (
+    router as oauth_router
+)
 
 
 app = FastAPI(
@@ -49,6 +52,7 @@ app.include_router(automation_action_router)
 app.include_router(events_router)
 app.include_router(execution_log_router)
 app.include_router(connection_router)
+app.include_router(oauth_router)
 
 
 @app.get("/")

@@ -1,3 +1,5 @@
+from sqlalchemy.orm import Session
+
 from app.automation_actions.models import AutomationAction
 
 from app.execution.registry import (
@@ -13,6 +15,7 @@ class ActionExecutor:
 
     @staticmethod
     def execute(
+        db: Session,
         action: AutomationAction
     ):
 
@@ -27,4 +30,7 @@ class ActionExecutor:
                 f"'{action.action_type}'"
             )
 
-        return executor.execute(action)
+        return executor.execute(
+            db=db,
+            action=action
+        )

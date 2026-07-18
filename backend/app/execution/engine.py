@@ -46,7 +46,8 @@ class AutomationEngine:
         for action in actions:
 
             result = ActionExecutor.execute(
-                action
+                db=db,
+                action=action
             )
 
             results.append(result)

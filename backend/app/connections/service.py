@@ -11,7 +11,6 @@ from app.connections.schemas import (
 
 class ConnectionService:
 
-
     @staticmethod
     def create_connection(
         db: Session,
@@ -20,7 +19,6 @@ class ConnectionService:
         owner: User
     ) -> Connection:
 
-
         workspace = (
             db.query(Workspace)
             .filter(
@@ -30,10 +28,8 @@ class ConnectionService:
             .first()
         )
 
-
         if not workspace:
             raise ValueError("Workspace not found")
-
 
         new_connection = Connection(
             workspace_id=workspace.id,
@@ -42,15 +38,77 @@ class ConnectionService:
             credentials=connection.credentials
         )
 
-
         db.add(new_connection)
         db.commit()
         db.refresh(new_connection)
 
-
         return new_connection
 
+    @staticmethod
+    def create_or_update_connection(
+        db: Session,
+        workspace_id: int,
+        provider: str,
+        name: str,
+        credentials: dict
+    ) -> Connection:
+        """
+        Creates or updates an OAuth connection.
+        """
 
+        existing = (
+            db.query(Connection)
+            .filter(
+                Connection.workspace_id == workspace_id,
+                Connection.provider == provider
+            )
+            .first()
+        )
+
+        if existing:
+
+            existing.name = name
+            existing.credentials = credentials
+            existing.is_active = "ACTIVE"
+
+            db.commit()
+            db.refresh(existing)
+
+            return existing
+
+        connection = Connection(
+            workspace_id=workspace_id,
+            provider=provider,
+            name=name,
+            credentials=credentials,
+            is_active="ACTIVE"
+        )
+
+        db.add(connection)
+        db.commit()
+        db.refresh(connection)
+
+        return connection
+
+    @staticmethod
+    def get_provider_connection(
+        db: Session,
+        workspace_id: int,
+        provider: str
+    ) -> Connection | None:
+        """
+        Returns the active provider connection.
+        """
+
+        return (
+            db.query(Connection)
+            .filter(
+                Connection.workspace_id == workspace_id,
+                Connection.provider == provider,
+                Connection.is_active == "ACTIVE"
+            )
+            .first()
+        )
 
     @staticmethod
     def get_connections(
@@ -58,7 +116,6 @@ class ConnectionService:
         workspace_id: int,
         owner: User
     ):
-
 
         workspace = (
             db.query(Workspace)
@@ -69,10 +126,8 @@ class ConnectionService:
             .first()
         )
 
-
         if not workspace:
             raise ValueError("Workspace not found")
-
 
         return (
             db.query(Connection)
@@ -82,15 +137,12 @@ class ConnectionService:
             .all()
         )
 
-
-
     @staticmethod
     def get_connection(
         db: Session,
         connection_id: int,
         owner: User
     ) -> Connection:
-
 
         connection = (
             db.query(Connection)
@@ -102,14 +154,10 @@ class ConnectionService:
             .first()
         )
 
-
         if not connection:
             raise ValueError("Connection not found")
 
-
         return connection
-
-
 
     @staticmethod
     def update_connection(
@@ -119,7 +167,6 @@ class ConnectionService:
         owner: User
     ) -> Connection:
 
-
         existing_connection = (
             db.query(Connection)
             .join(Workspace)
@@ -130,30 +177,22 @@ class ConnectionService:
             .first()
         )
 
-
         if not existing_connection:
             raise ValueError("Connection not found")
-
 
         if connection.name is not None:
             existing_connection.name = connection.name
 
-
         if connection.credentials is not None:
             existing_connection.credentials = connection.credentials
-
 
         if connection.is_active is not None:
             existing_connection.is_active = connection.is_active
 
-
         db.commit()
         db.refresh(existing_connection)
 
-
         return existing_connection
-
-
 
     @staticmethod
     def delete_connection(
@@ -162,7 +201,6 @@ class ConnectionService:
         owner: User
     ):
 
-
         existing_connection = (
             db.query(Connection)
             .join(Workspace)
@@ -173,13 +211,10 @@ class ConnectionService:
             .first()
         )
 
-
         if not existing_connection:
             raise ValueError("Connection not found")
 
-
         db.delete(existing_connection)
         db.commit()
-
 
         return True

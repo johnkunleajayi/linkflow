@@ -1,6 +1,9 @@
 import httpx
 
+from sqlalchemy.orm import Session
+
 from app.automation_actions.models import AutomationAction
+from app.connections.models import Connection
 
 
 class SalesforceExecutor:
@@ -10,6 +13,7 @@ class SalesforceExecutor:
 
     def execute(
         self,
+        db: Session,
         action: AutomationAction
     ):
 
@@ -24,15 +28,37 @@ class SalesforceExecutor:
         print(f"Configuration  : {action.configuration}")
         print()
 
-        configuration = action.configuration or {}
+        workspace_id = action.automation.workspace_id
 
-        salesforce_url = configuration.get(
-            "salesforce_url"
+        connection = (
+            db.query(Connection)
+            .filter(
+                Connection.workspace_id == workspace_id,
+                Connection.provider == "SALESFORCE",
+                Connection.is_active == "ACTIVE"
+            )
+            .first()
         )
 
-        access_token = configuration.get(
+        if connection is None:
+
+            return {
+                "success": False,
+                "mode": "connection",
+                "message": "No active Salesforce connection found."
+            }
+
+        credentials = connection.credentials or {}
+
+        salesforce_url = credentials.get(
+            "instance_url"
+        )
+
+        access_token = credentials.get(
             "access_token"
         )
+
+        configuration = action.configuration or {}
 
         lead_data = configuration.get(
             "lead",
@@ -43,7 +69,9 @@ class SalesforceExecutor:
             }
         )
 
-        # MVP fallback mode
+        #
+        # MVP fallback
+        #
 
         if not salesforce_url or not access_token:
 
@@ -57,22 +85,28 @@ class SalesforceExecutor:
                 "message": "Salesforce Lead created successfully."
             }
 
+        #
+        # Salesforce REST endpoint
+        #
+
+        endpoint = (
+            f"{salesforce_url}"
+            "/services/data/v64.0/sobjects/Lead"
+        )
 
         headers = {
             "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json"
         }
 
-
         try:
 
             response = httpx.post(
-                salesforce_url,
+                endpoint,
                 json=lead_data,
                 headers=headers,
                 timeout=30
             )
-
 
             if response.status_code not in [200, 201]:
 
@@ -83,14 +117,12 @@ class SalesforceExecutor:
                     "response": response.text
                 }
 
-
             return {
                 "success": True,
                 "mode": "salesforce",
                 "message": "Salesforce Lead created successfully.",
                 "salesforce_response": response.json()
             }
-
 
         except Exception as e:
 
