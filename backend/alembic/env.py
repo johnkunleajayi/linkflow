@@ -14,6 +14,9 @@ from app.social_accounts.models import SocialAccount
 from app.automations.models import Automation
 from app.automation_triggers.models import AutomationTrigger
 from app.automation_actions.models import AutomationAction
+from app.execution_logs.models import ExecutionLog
+from app.connections.models import Connection
+
 
 config = context.config
 

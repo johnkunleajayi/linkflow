@@ -52,3 +52,9 @@ class Workspace(Base):
         back_populates="workspace",
         cascade="all, delete-orphan"
     )
+
+    connections = relationship(
+        "Connection",
+        back_populates="workspace",
+        cascade="all, delete-orphan"
+    )

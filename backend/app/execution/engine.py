@@ -2,7 +2,9 @@ from sqlalchemy.orm import Session
 
 from app.automations.models import Automation
 from app.automation_actions.models import AutomationAction
+
 from app.execution.executor import ActionExecutor
+from app.execution_logs.service import ExecutionLogService
 
 
 class AutomationEngine:
@@ -14,7 +16,8 @@ class AutomationEngine:
     @staticmethod
     def execute_automation(
         db: Session,
-        automation_id: int
+        automation_id: int,
+        event_type: str = "UNKNOWN_EVENT"
     ):
 
         automation = (
@@ -48,9 +51,19 @@ class AutomationEngine:
 
             results.append(result)
 
-        return {
+        execution_result = {
             "automation_id": automation.id,
             "automation_name": automation.name,
             "actions_executed": len(actions),
             "results": results
         }
+
+        ExecutionLogService.create_log(
+            db=db,
+            automation_id=automation.id,
+            event_type=event_type,
+            status="SUCCESS",
+            result=execution_result
+        )
+
+        return execution_result

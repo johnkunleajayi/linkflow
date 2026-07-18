@@ -7,6 +7,8 @@ from app.social_accounts.models import SocialAccount
 from app.automations.models import Automation
 from app.automation_triggers.models import AutomationTrigger
 from app.automation_actions.models import AutomationAction
+from app.execution_logs.models import ExecutionLog
+from app.connections.models import Connection
 
 
 # Import routers
@@ -19,6 +21,15 @@ from app.automation_triggers.router import (
 )
 from app.automation_actions.router import (
     router as automation_action_router
+)
+from app.events.router import (
+    router as events_router
+)
+from app.execution_logs.router import (
+    router as execution_log_router
+)
+from app.connections.router import (
+    router as connection_router
 )
 
 
@@ -35,6 +46,9 @@ app.include_router(social_account_router)
 app.include_router(automation_router)
 app.include_router(automation_trigger_router)
 app.include_router(automation_action_router)
+app.include_router(events_router)
+app.include_router(execution_log_router)
+app.include_router(connection_router)
 
 
 @app.get("/")

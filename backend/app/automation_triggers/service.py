@@ -133,3 +133,24 @@ class AutomationTriggerService:
         db.commit()
 
         return True
+
+    @staticmethod
+    def find_trigger_by_type(
+        db: Session,
+        trigger_type: str
+    ) -> AutomationTrigger | None:
+        """
+        Finds the first enabled trigger matching
+        an incoming event.
+        """
+
+        return (
+            db.query(AutomationTrigger)
+            .join(Automation)
+            .filter(
+                AutomationTrigger.trigger_type == trigger_type,
+                AutomationTrigger.is_enabled == True,
+                Automation.status == "ACTIVE"
+            )
+            .first()
+        )
