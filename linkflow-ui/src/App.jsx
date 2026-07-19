@@ -1,203 +1,206 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+
 import "./App.css";
 
+import Hero from "./components/Hero";
+import Stats from "./components/Stats";
+import Toolbar from "./components/Toolbar";
+import WorkflowCard from "./components/WorkflowCard";
+import CreateWorkflowModal from "./components/CreateWorkflowModal";
+
+import useWorkflows from "./hooks/useWorkflows";
+
+
 function App() {
-  const [workflows, setWorkflows] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  const {
+    workflows,
+    loading,
+    creating,
+    loadWorkflows,
+    createWorkflow
+  } = useWorkflows();
+
+
 
   const [showModal, setShowModal] = useState(false);
-  const [creating, setCreating] = useState(false);
 
   const [search, setSearch] = useState("");
 
   const [name, setName] = useState("");
-  const [trigger, setTrigger] = useState("LINKEDIN_CONNECTION_ACCEPTED");
-  const [action, setAction] = useState("SALESFORCE_CREATE_LEAD");
+
+  const [trigger, setTrigger] = useState(
+    "LINKEDIN_CONNECTION_ACCEPTED"
+  );
+
+  const [action, setAction] = useState(
+    "SALESFORCE_CREATE_LEAD"
+  );
+
+
 
   useEffect(() => {
+
     loadWorkflows();
+
   }, []);
 
-  async function loadWorkflows() {
-    try {
-      setLoading(true);
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/workflows/workspace/1"
-      );
 
-      const data = await response.json();
 
-      setWorkflows(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  async function handleCreateWorkflow() {
 
-  async function createWorkflow() {
-    if (!name.trim()) {
-      alert("Workflow name is required.");
-      return;
-    }
+    await createWorkflow({
+      name,
+      trigger,
+      action,
 
-    try {
-      setCreating(true);
+      onSuccess: () => {
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/workflows/workspace/1",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            trigger,
-            action,
-            trigger_configuration: {},
-            action_configuration: {},
-          }),
-        }
-      );
+        setName("");
 
-      if (!response.ok) {
-        throw new Error("Unable to create workflow.");
+        setTrigger(
+          "LINKEDIN_CONNECTION_ACCEPTED"
+        );
+
+        setAction(
+          "SALESFORCE_CREATE_LEAD"
+        );
+
+        setShowModal(false);
+
       }
 
-      setName("");
-      setTrigger("LINKEDIN_CONNECTION_ACCEPTED");
-      setAction("SALESFORCE_CREATE_LEAD");
+    });
 
-      setShowModal(false);
-
-      await loadWorkflows();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create workflow.");
-    } finally {
-      setCreating(false);
-    }
   }
+
+
+
+
 
   const filteredWorkflows = useMemo(() => {
+
     return workflows.filter((workflow) =>
-      workflow.name.toLowerCase().includes(search.toLowerCase())
+      workflow.name
+        .toLowerCase()
+        .includes(
+          search.toLowerCase()
+        )
     );
-  }, [workflows, search]);
+
+  }, [
+    workflows,
+    search
+  ]);
+
+
+
+
 
   function prettyTrigger(trigger) {
-    switch (trigger) {
+
+    switch(trigger) {
+
       case "LINKEDIN_CONNECTION_ACCEPTED":
+
         return "LinkedIn Connection Accepted";
 
+
       default:
+
         return trigger;
+
     }
+
   }
+
+
+
+
 
   function prettyAction(action) {
-    switch (action) {
+
+    switch(action) {
+
       case "SALESFORCE_CREATE_LEAD":
+
         return "Create Salesforce Lead";
 
+
       default:
+
         return action;
+
     }
+
   }
 
+
+
+
+
   const activeCount = workflows.filter(
-    (x) => x.status === "ACTIVE"
+    (workflow) =>
+      workflow.status === "ACTIVE"
   ).length;
 
+
+
+
+
+
   return (
+
     <div className="app">
 
-      <section className="hero">
 
-        <div>
+      <Hero
+        onNewWorkflow={() =>
+          setShowModal(true)
+        }
+      />
 
-          <span className="hero-badge">
-            🚀 LINKFLOW
-          </span>
 
-          <h1>
-            Build automations that work while you sleep.
-          </h1>
 
-          <p>
-            Connect LinkedIn, Salesforce, HubSpot,
-            Gmail and more without writing code.
-          </p>
+      <Stats
 
-        </div>
+        totalWorkflows={
+          workflows.length
+        }
 
-        <button
-          className="primary-btn"
-          onClick={() => setShowModal(true)}
-        >
-          + New Workflow
-        </button>
+        activeWorkflows={
+          activeCount
+        }
 
-      </section>
+        connections={2}
 
-      <section className="stats">
+        executions={283}
 
-        <div className="stat-card">
+      />
 
-          <small>Total Workflows</small>
 
-          <h2>{workflows.length}</h2>
 
-        </div>
 
-        <div className="stat-card">
+      <Toolbar
 
-          <small>Active</small>
+        search={search}
 
-          <h2>{activeCount}</h2>
+        setSearch={setSearch}
 
-        </div>
+        workflowCount={
+          filteredWorkflows.length
+        }
 
-        <div className="stat-card">
+      />
 
-          <small>Connections</small>
 
-          <h2>2</h2>
 
-        </div>
 
-        <div className="stat-card">
-
-          <small>Executions</small>
-
-          <h2>283</h2>
-
-        </div>
-
-      </section>
-
-      <section className="toolbar">
-
-        <div>
-
-          <h2>My Workflows</h2>
-
-          <p>
-            Manage every automation from one place.
-          </p>
-
-        </div>
-
-        <input
-          className="search-box"
-          placeholder="Search workflow..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-      </section>
 
       {loading ? (
 
@@ -207,171 +210,101 @@ function App() {
 
         </div>
 
+
       ) : (
+
 
         <div className="workflow-grid">
 
-          {filteredWorkflows.map((workflow) => (
 
-            <div
-              key={workflow.automation_id}
-              className="workflow-card"
-            >
+          {
+            filteredWorkflows.map(
+              (workflow) => (
 
-              <div className="workflow-header">
+                <WorkflowCard
 
-                <div>
+                  key={
+                    workflow.automation_id
+                  }
 
-                  <h3>{workflow.name}</h3>
+                  workflow={workflow}
 
-                  <span
-                    className={
-                      workflow.status === "ACTIVE"
-                        ? "badge active"
-                        : "badge disabled"
-                    }
-                  >
-                    {workflow.status}
-                  </span>
+                  prettyTrigger={
+                    prettyTrigger
+                  }
 
-                </div>
+                  prettyAction={
+                    prettyAction
+                  }
 
-                <button className="menu-btn">
-                  ⋯
-                </button>
+                />
 
-              </div>
+              )
+            )
+          }
 
-              <div className="workflow-info">
-
-                <div>
-
-                  <small>Trigger</small>
-
-                  <strong>
-                    {prettyTrigger(workflow.trigger)}
-                  </strong>
-
-                </div>
-
-                <div>
-
-                  <small>Action</small>
-
-                  <strong>
-                    {prettyAction(workflow.action)}
-                  </strong>
-
-                </div>
-
-              </div>
-
-              <div className="workflow-actions">
-
-                <button className="secondary-btn">
-                  Edit
-                </button>
-
-                <button className="danger-btn">
-                  Delete
-                </button>
-
-              </div>
-
-            </div>
-
-          ))}
 
         </div>
 
+
       )}
+
+
+
+
+
 
       {showModal && (
 
-        <div className="modal-overlay">
 
-          <div className="modal">
+        <CreateWorkflowModal
 
-            <h2>Create Workflow</h2>
 
-            <div className="form-group">
+          creating={creating}
 
-              <label>Name</label>
 
-              <input
-                value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
-              />
+          name={name}
 
-            </div>
+          setName={setName}
 
-            <div className="form-group">
 
-              <label>Trigger</label>
 
-              <select
-                value={trigger}
-                onChange={(e) =>
-                  setTrigger(e.target.value)
-                }
-              >
-                <option value="LINKEDIN_CONNECTION_ACCEPTED">
-                  LinkedIn Connection Accepted
-                </option>
-              </select>
+          trigger={trigger}
 
-            </div>
+          setTrigger={setTrigger}
 
-            <div className="form-group">
 
-              <label>Action</label>
 
-              <select
-                value={action}
-                onChange={(e) =>
-                  setAction(e.target.value)
-                }
-              >
-                <option value="SALESFORCE_CREATE_LEAD">
-                  Salesforce Create Lead
-                </option>
-              </select>
+          action={action}
 
-            </div>
+          setAction={setAction}
 
-            <div className="modal-buttons">
 
-              <button
-                className="secondary-btn"
-                onClick={() =>
-                  setShowModal(false)
-                }
-              >
-                Cancel
-              </button>
 
-              <button
-                className="primary-btn"
-                disabled={creating}
-                onClick={createWorkflow}
-              >
-                {creating
-                  ? "Creating..."
-                  : "Create Workflow"}
-              </button>
+          onCancel={() =>
+            setShowModal(false)
+          }
 
-            </div>
 
-          </div>
 
-        </div>
+          onCreate={
+            handleCreateWorkflow
+          }
+
+
+        />
+
 
       )}
 
+
+
+
     </div>
+
   );
+
 }
+
 
 export default App;
