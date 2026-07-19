@@ -84,3 +84,58 @@ class SalesforceOAuthService:
         response.raise_for_status()
 
         return response.json()
+
+    @staticmethod
+    def refresh_access_token(
+        refresh_token: str
+    ):
+        """
+        Uses a Salesforce refresh token
+        to obtain a new access token.
+        """
+
+        token_url = (
+            f"{settings.SALESFORCE_LOGIN_URL}"
+            "/services/oauth2/token"
+        )
+
+        payload = {
+            "grant_type": "refresh_token",
+            "client_id": settings.SALESFORCE_CLIENT_ID,
+            "client_secret": settings.SALESFORCE_CLIENT_SECRET,
+            "refresh_token": refresh_token
+        }
+
+        try:
+
+            response = httpx.post(
+                token_url,
+                data=payload,
+                timeout=30
+            )
+
+            response.raise_for_status()
+
+            return {
+                "success": True,
+                "data": response.json()
+            }
+
+        except httpx.HTTPStatusError as e:
+
+            try:
+                error = e.response.json()
+            except Exception:
+                error = e.response.text
+
+            return {
+                "success": False,
+                "error": error
+            }
+
+        except Exception as e:
+
+            return {
+                "success": False,
+                "error": str(e)
+            }

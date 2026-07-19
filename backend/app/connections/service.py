@@ -111,6 +111,28 @@ class ConnectionService:
         )
 
     @staticmethod
+    def update_access_token(
+        db: Session,
+        connection: Connection,
+        access_token: str
+    ) -> Connection:
+        """
+        Updates only the access token stored
+        for an OAuth connection.
+        """
+
+        credentials = connection.credentials or {}
+
+        credentials["access_token"] = access_token
+
+        connection.credentials = credentials
+
+        db.commit()
+        db.refresh(connection)
+
+        return connection
+
+    @staticmethod
     def get_connections(
         db: Session,
         workspace_id: int,

@@ -5,6 +5,7 @@ from app.automation_actions.models import AutomationAction
 
 from app.execution.executor import ActionExecutor
 from app.execution_logs.service import ExecutionLogService
+from app.conditions.engine import ConditionEngine
 
 
 class AutomationEngine:
@@ -17,7 +18,8 @@ class AutomationEngine:
     def execute_automation(
         db: Session,
         automation_id: int,
-        event_type: str = "UNKNOWN_EVENT"
+        event_type: str = "UNKNOWN_EVENT",
+        payload: dict | None = None
     ):
 
         automation = (
@@ -32,6 +34,39 @@ class AutomationEngine:
         if automation is None:
             raise ValueError("Automation not found")
 
+        #
+        # Evaluate workflow conditions.
+        # Version 1 always returns True.
+        #
+
+        should_continue = ConditionEngine.evaluate(
+            conditions=None,
+            payload=payload
+        )
+
+        if not should_continue:
+
+            execution_result = {
+                "automation_id": automation.id,
+                "automation_name": automation.name,
+                "actions_executed": 0,
+                "results": [],
+                "message": (
+                    "Workflow skipped because "
+                    "its conditions were not met."
+                )
+            }
+
+            ExecutionLogService.create_log(
+                db=db,
+                automation_id=automation.id,
+                event_type=event_type,
+                status="SKIPPED",
+                result=execution_result
+            )
+
+            return execution_result
+
         actions = (
             db.query(AutomationAction)
             .filter(
@@ -43,6 +78,8 @@ class AutomationEngine:
 
         results = []
 
+        execution_status = "SUCCESS"
+
         for action in actions:
 
             result = ActionExecutor.execute(
@@ -51,6 +88,9 @@ class AutomationEngine:
             )
 
             results.append(result)
+
+            if not result.get("success", False):
+                execution_status = "FAILED"
 
         execution_result = {
             "automation_id": automation.id,
@@ -63,7 +103,7 @@ class AutomationEngine:
             db=db,
             automation_id=automation.id,
             event_type=event_type,
-            status="SUCCESS",
+            status=execution_status,
             result=execution_result
         )
 

@@ -37,32 +37,46 @@ def linkedin_event(
     """
     Simulates a LinkedIn event.
 
-    Finds the matching trigger and
-    executes its automation.
+    Finds all matching triggers and
+    executes their automations.
     """
 
-    trigger = AutomationTriggerService.find_trigger_by_type(
+    triggers = AutomationTriggerService.find_triggers_by_type(
         db=db,
         trigger_type=payload.event
     )
 
-    if trigger is None:
+    if not triggers:
 
         raise HTTPException(
             status_code=404,
             detail="No automation trigger found for this event."
         )
 
-    result = AutomationEngine.execute_automation(
-        db=db,
-        automation_id=trigger.automation_id,
-        event_type=payload.event
-    )
+
+    executions = []
+
+
+    for trigger in triggers:
+
+        result = AutomationEngine.execute_automation(
+            db=db,
+            automation_id=trigger.automation_id,
+            event_type=payload.event
+        )
+
+        executions.append(
+            {
+                "trigger_id": trigger.id,
+                "automation_id": trigger.automation_id,
+                "execution": result
+            }
+        )
+
 
     return {
         "message": "Event processed successfully.",
         "event": payload.event,
-        "trigger_id": trigger.id,
-        "automation_id": trigger.automation_id,
-        "execution": result
+        "triggers_processed": len(triggers),
+        "executions": executions
     }

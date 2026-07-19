@@ -44,6 +44,7 @@ class AutomationTriggerService:
 
         return new_trigger
 
+
     @staticmethod
     def get_triggers(
         db: Session,
@@ -71,6 +72,7 @@ class AutomationTriggerService:
             )
             .all()
         )
+
 
     @staticmethod
     def update_trigger(
@@ -108,6 +110,7 @@ class AutomationTriggerService:
 
         return existing_trigger
 
+
     @staticmethod
     def delete_trigger(
         db: Session,
@@ -134,13 +137,14 @@ class AutomationTriggerService:
 
         return True
 
+
     @staticmethod
-    def find_trigger_by_type(
+    def find_triggers_by_type(
         db: Session,
         trigger_type: str
-    ) -> AutomationTrigger | None:
+    ):
         """
-        Finds the first enabled trigger matching
+        Finds all enabled triggers matching
         an incoming event.
         """
 
@@ -152,5 +156,5 @@ class AutomationTriggerService:
                 AutomationTrigger.is_enabled == True,
                 Automation.status == "ACTIVE"
             )
-            .first()
+            .all()
         )
