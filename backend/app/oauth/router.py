@@ -5,6 +5,8 @@ from fastapi import (
     Depends
 )
 
+from fastapi.responses import RedirectResponse
+
 from sqlalchemy.orm import Session
 
 from app.database.database import get_db
@@ -52,8 +54,9 @@ def salesforce_callback(
 ):
     """
     Exchanges Salesforce authorization
-    code for an access token and
-    stores it as a Connection.
+    code for an access token,
+    stores the connection,
+    then redirects back to LinkFlow.
     """
 
     try:
@@ -78,12 +81,14 @@ def salesforce_callback(
             }
         )
 
-        return {
-            "message": "Salesforce connected successfully.",
-            "connection_saved": True,
-            "workspace_id": workspace_id,
-            "instance_url": token_response["instance_url"]
-        }
+        return RedirectResponse(
+            url=(
+                "http://localhost:5173/"
+                "connections"
+                "?provider=salesforce"
+                "&success=true"
+            )
+        )
 
     except Exception as e:
 

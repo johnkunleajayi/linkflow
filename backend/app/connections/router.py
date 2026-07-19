@@ -22,6 +22,8 @@ from app.connections.service import (
     ConnectionService
 )
 
+from app.connections.models import Connection
+
 
 router = APIRouter(
     prefix="/connections",
@@ -66,24 +68,25 @@ def create_connection(
 )
 def get_connections(
     workspace_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
+    """
+    Temporary MVP endpoint.
 
-    try:
+    Returns all connections for a workspace
+    without authentication.
 
-        return ConnectionService.get_connections(
-            db=db,
-            workspace_id=workspace_id,
-            owner=current_user
+    Authentication will be restored after
+    LinkFlow Login is implemented.
+    """
+
+    return (
+        db.query(Connection)
+        .filter(
+            Connection.workspace_id == workspace_id
         )
-
-    except ValueError as e:
-
-        raise HTTPException(
-            status_code=404,
-            detail=str(e)
-        )
+        .all()
+    )
 
 
 
