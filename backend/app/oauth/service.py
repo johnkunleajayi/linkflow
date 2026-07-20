@@ -139,3 +139,52 @@ class SalesforceOAuthService:
                 "success": False,
                 "error": str(e)
             }
+
+
+class LinkedInOAuthService:
+    """
+    Handles LinkedIn OAuth operations.
+    """
+
+    @staticmethod
+    def get_authorization_url(
+        workspace_id: int
+    ):
+
+        state = str(workspace_id)
+
+        params = {
+            "response_type": "code",
+            "client_id": settings.LINKEDIN_CLIENT_ID,
+            "redirect_uri": settings.LINKEDIN_REDIRECT_URI,
+            "state": state,
+            "scope": "openid profile email"
+        }
+
+        return (
+            f"{settings.LINKEDIN_AUTHORIZATION_URL}"
+            f"?{urlencode(params)}"
+        )
+
+    @staticmethod
+    def exchange_code_for_token(
+        code: str
+    ):
+
+        payload = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": settings.LINKEDIN_REDIRECT_URI,
+            "client_id": settings.LINKEDIN_CLIENT_ID,
+            "client_secret": settings.LINKEDIN_CLIENT_SECRET
+        }
+
+        response = httpx.post(
+            settings.LINKEDIN_ACCESS_TOKEN_URL,
+            data=payload,
+            timeout=30
+        )
+
+        response.raise_for_status()
+
+        return response.json()

@@ -45,5 +45,32 @@ class Settings:
         "https://login.salesforce.com"
     )
 
+    #
+    # LinkedIn OAuth
+    #
+
+    LINKEDIN_CLIENT_ID = os.getenv(
+        "LINKEDIN_CLIENT_ID",
+        ""
+    )
+
+    LINKEDIN_CLIENT_SECRET = os.getenv(
+        "LINKEDIN_CLIENT_SECRET",
+        ""
+    )
+
+    LINKEDIN_REDIRECT_URI = os.getenv(
+        "LINKEDIN_REDIRECT_URI",
+        "http://localhost:8000/oauth/linkedin/callback"
+    )
+
+    LINKEDIN_AUTHORIZATION_URL = (
+        "https://www.linkedin.com/oauth/v2/authorization"
+    )
+
+    LINKEDIN_ACCESS_TOKEN_URL = (
+        "https://www.linkedin.com/oauth/v2/accessToken"
+    )
+
 
 settings = Settings()

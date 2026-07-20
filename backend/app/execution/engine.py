@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.automations.models import Automation
 from app.automation_actions.models import AutomationAction
+from app.automation_triggers.models import AutomationTrigger
 
 from app.execution.executor import ActionExecutor
 from app.execution_logs.service import ExecutionLogService
@@ -33,11 +34,6 @@ class AutomationEngine:
 
         if automation is None:
             raise ValueError("Automation not found")
-
-        #
-        # Evaluate workflow conditions.
-        # Version 1 always returns True.
-        #
 
         should_continue = ConditionEngine.evaluate(
             conditions=None,
@@ -108,3 +104,42 @@ class AutomationEngine:
         )
 
         return execution_result
+
+
+def execute_event(
+    db: Session,
+    event_type: str,
+    payload: dict
+):
+    """
+    Finds every ACTIVE automation listening
+    for this event and executes it.
+    """
+
+    triggers = (
+        db.query(AutomationTrigger)
+        .join(
+            Automation,
+            Automation.id == AutomationTrigger.automation_id
+        )
+        .filter(
+            Automation.status == "ACTIVE",
+            AutomationTrigger.trigger_type == event_type,
+            AutomationTrigger.is_enabled == True
+        )
+        .all()
+    )
+
+    print("=" * 60)
+    print(f"EVENT RECEIVED: {event_type}")
+    print(f"{len(triggers)} automation(s) matched")
+    print("=" * 60)
+
+    for trigger in triggers:
+
+        AutomationEngine.execute_automation(
+            db=db,
+            automation_id=trigger.automation_id,
+            event_type=event_type,
+            payload=payload
+        )

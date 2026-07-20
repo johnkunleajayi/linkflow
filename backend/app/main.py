@@ -13,6 +13,7 @@ from app.connections.models import Connection
 
 
 # Import routers
+from app.linkedin.router import router as linkedin_router
 from app.auth.router import router as auth_router
 from app.workspaces.router import router as workspace_router
 from app.social_accounts.router import router as social_account_router
@@ -74,6 +75,7 @@ app.include_router(execution_log_router)
 app.include_router(connection_router)
 app.include_router(oauth_router)
 app.include_router(workflow_router)
+app.include_router(linkedin_router)
 
 
 @app.get("/")
