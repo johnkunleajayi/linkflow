@@ -135,11 +135,21 @@ def execute_event(
     print(f"{len(triggers)} automation(s) matched")
     print("=" * 60)
 
+    executions = []
+
     for trigger in triggers:
 
-        AutomationEngine.execute_automation(
+        result = AutomationEngine.execute_automation(
             db=db,
             automation_id=trigger.automation_id,
             event_type=event_type,
             payload=payload
         )
+
+        executions.append(result)
+
+    return {
+        "event": event_type,
+        "matched_automations": len(triggers),
+        "executions": executions
+    }
