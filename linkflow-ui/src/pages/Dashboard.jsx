@@ -2,15 +2,12 @@ import {
   useEffect
 } from "react";
 
-
 import "../App.css";
-
 
 import {
   prettyTrigger,
   prettyAction
 } from "../utils/workflowFormatter";
-
 
 import Hero from "../components/Hero";
 import Stats from "../components/Stats";
@@ -18,17 +15,13 @@ import Toolbar from "../components/Toolbar";
 import CreateWorkflowModal from "../components/CreateWorkflowModal";
 import WorkflowGrid from "../components/WorkflowGrid";
 
-
 import useWorkflows from "../hooks/useWorkflows";
 import useWorkflowSearch from "../hooks/useWorkflowSearch";
 import useCreateWorkflowForm from "../hooks/useCreateWorkflowForm";
 import useDashboardState from "../hooks/useDashboardState";
 
 
-
-
 function Dashboard() {
-
 
   const {
     workflows,
@@ -40,10 +33,8 @@ function Dashboard() {
   } = useWorkflows();
 
 
-
-
-
   const {
+
     name,
     setName,
 
@@ -53,12 +44,24 @@ function Dashboard() {
     action,
     setAction,
 
+    firstName,
+    setFirstName,
+
+    lastName,
+    setLastName,
+
+    company,
+    setCompany,
+
+    email,
+    setEmail,
+
+    phone,
+    setPhone,
+
     resetForm
 
   } = useCreateWorkflowForm();
-
-
-
 
 
   const {
@@ -82,21 +85,11 @@ function Dashboard() {
   });
 
 
-
-
-
-
-
   useEffect(() => {
 
     loadWorkflows();
 
   }, []);
-
-
-
-
-
 
 
   const filteredWorkflows =
@@ -109,11 +102,6 @@ function Dashboard() {
     );
 
 
-
-
-
-
-
   const activeCount =
     workflows.filter(
 
@@ -123,16 +111,9 @@ function Dashboard() {
     ).length;
 
 
-
-
-
-
-
   return (
 
     <div className="app">
-
-
 
       <Hero
 
@@ -141,11 +122,6 @@ function Dashboard() {
         }
 
       />
-
-
-
-
-
 
       <Stats
 
@@ -163,12 +139,6 @@ function Dashboard() {
 
       />
 
-
-
-
-
-
-
       <Toolbar
 
         search={search}
@@ -181,78 +151,57 @@ function Dashboard() {
 
       />
 
-
-
-
-
-
-
-
       <WorkflowGrid
 
-
         loading={loading}
-
 
         workflows={
           filteredWorkflows
         }
 
-
         prettyTrigger={
           prettyTrigger
         }
-
 
         prettyAction={
           prettyAction
         }
 
-
       />
-
-
-
-
-
-
-
-
-
 
       {showModal && (
 
-
-
         <CreateWorkflowModal
-
 
           creating={creating}
 
-
           name={name}
-
           setName={setName}
 
-
-
           trigger={trigger}
-
           setTrigger={setTrigger}
 
-
-
           action={action}
-
           setAction={setAction}
 
+          firstName={firstName}
+          setFirstName={setFirstName}
 
+          lastName={lastName}
+          setLastName={setLastName}
+
+          company={company}
+          setCompany={setCompany}
+
+          email={email}
+          setEmail={setEmail}
+
+          phone={phone}
+          setPhone={setPhone}
 
           onCancel={() =>
             setShowModal(false)
           }
-
-
 
           onCreate={() =>
 
@@ -262,31 +211,30 @@ function Dashboard() {
 
               trigger,
 
-              action
+              action,
+
+              firstName,
+
+              lastName,
+
+              company,
+
+              email,
+
+              phone
 
             })
 
           }
 
-
         />
 
-
-
       )}
-
-
-
-
-
 
     </div>
 
   );
 
-
 }
-
-
 
 export default Dashboard;

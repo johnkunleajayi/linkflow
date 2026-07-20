@@ -2,75 +2,46 @@ import {
   useState
 } from "react";
 
-
 import {
   getWorkflows,
   createWorkflowApi
 } from "../api/workflowApi";
 
 
-
 function useWorkflows() {
-
 
   const [workflows, setWorkflows] =
     useState([]);
 
-
   const [loading, setLoading] =
     useState(true);
-
 
   const [creating, setCreating] =
     useState(false);
 
 
-
-
-
-
   async function loadWorkflows() {
-
 
     try {
 
-
       setLoading(true);
-
-
 
       const data =
         await getWorkflows();
 
-
-
       setWorkflows(data);
-
-
 
     } catch (error) {
 
-
       console.error(error);
-
-
 
     } finally {
 
-
       setLoading(false);
-
 
     }
 
-
   }
-
-
-
-
-
-
 
 
   async function createWorkflow({
@@ -81,37 +52,25 @@ function useWorkflows() {
 
     action,
 
+    actionConfiguration,
+
     onSuccess
 
   }) {
 
-
-
     if (!name.trim()) {
-
 
       alert(
         "Workflow name is required."
       );
 
-
       return;
-
 
     }
 
-
-
-
-
-
     try {
 
-
       setCreating(true);
-
-
-
 
       await createWorkflowApi({
 
@@ -119,66 +78,38 @@ function useWorkflows() {
 
         trigger,
 
-        action
+        action,
+
+        actionConfiguration
 
       });
 
-
-
-
-
       await loadWorkflows();
-
-
-
-
 
       if (onSuccess) {
 
-
         onSuccess();
-
 
       }
 
-
-
-
-
     } catch (error) {
 
-
       console.error(error);
-
-
 
       alert(
         "Failed to create workflow."
       );
 
-
-
     } finally {
-
 
       setCreating(false);
 
-
-
     }
-
-
 
   }
 
 
-
-
-
-
-
   return {
-
 
     workflows,
 
@@ -188,14 +119,10 @@ function useWorkflows() {
 
     loadWorkflows,
 
-    createWorkflow,
-
+    createWorkflow
 
   };
 
-
 }
-
-
 
 export default useWorkflows;

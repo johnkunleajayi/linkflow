@@ -3,6 +3,7 @@ import {
   useState
 } from "react";
 
+
 import {
   getConnections,
   connectApplicationApi,
@@ -13,11 +14,15 @@ import {
 
 function useConnections() {
 
+
   const [connections, setConnections] =
     useState([]);
 
+
   const [loading, setLoading] =
     useState(true);
+
+
 
 
 
@@ -25,33 +30,52 @@ function useConnections() {
 
     loadConnections();
 
+
   }, []);
+
+
 
 
 
 
   async function loadConnections() {
 
+
     try {
 
+
       setLoading(true);
+
+
 
       const data =
         await getConnections();
 
+
+
       setConnections(data);
+
+
 
     } catch (error) {
 
+
       console.error(error);
+
+
 
     } finally {
 
+
       setLoading(false);
+
 
     }
 
+
   }
+
+
 
 
 
@@ -59,46 +83,83 @@ function useConnections() {
 
   async function connectApplication(name) {
 
+
     try {
 
+
+
       if (name === "Salesforce") {
+
+
 
         const data =
           await getSalesforceAuthorizationUrl();
 
+
+
         window.location.href =
           data.authorization_url;
 
+
+
         return;
+
 
       }
 
+
+
+
+
+
       await connectApplicationApi(name);
+
+
+
 
       setConnections((current) =>
 
+
         current.map((connection) =>
+
+
 
           connection.name === name
 
+
             ? {
+
                 ...connection,
+
                 status: "CONNECTED"
+
               }
+
 
             : connection
 
+
         )
+
 
       );
 
+
+
     } catch (error) {
+
 
       console.error(error);
 
-      alert("Unable to connect application.");
+
+
+      alert(
+        "Unable to connect application."
+      );
+
 
     }
+
 
   }
 
@@ -106,15 +167,22 @@ function useConnections() {
 
 
 
+
+
   return {
+
 
     connections,
 
     loading,
 
-    connectApplication
+    connectApplication,
+
+    loadConnections
+
 
   };
+
 
 }
 

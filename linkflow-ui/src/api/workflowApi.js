@@ -1,10 +1,7 @@
 import apiClient from "./apiClient";
 
 
-
-
 export async function getWorkflows() {
-
 
   return await apiClient(
 
@@ -12,13 +9,7 @@ export async function getWorkflows() {
 
   );
 
-
 }
-
-
-
-
-
 
 
 export async function createWorkflowApi({
@@ -27,11 +18,11 @@ export async function createWorkflowApi({
 
   trigger,
 
-  action
+  action,
+
+  actionConfiguration
 
 }) {
-
-
 
   return await apiClient(
 
@@ -40,7 +31,6 @@ export async function createWorkflowApi({
     {
 
       method: "POST",
-
 
       body: JSON.stringify({
 
@@ -52,13 +42,14 @@ export async function createWorkflowApi({
 
         trigger_configuration: {},
 
-        action_configuration: {},
+        action_configuration:
+
+          actionConfiguration || {}
 
       }),
 
     }
 
   );
-
 
 }

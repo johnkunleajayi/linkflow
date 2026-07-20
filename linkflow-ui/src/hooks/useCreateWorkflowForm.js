@@ -1,30 +1,34 @@
-import {
-  useState
-} from "react";
-
+import { useState } from "react";
 
 function useCreateWorkflowForm() {
 
-
   const [name, setName] =
     useState("");
-
-
 
   const [trigger, setTrigger] =
     useState(
       "LINKEDIN_CONNECTION_ACCEPTED"
     );
 
-
-
   const [action, setAction] =
     useState(
       "SALESFORCE_CREATE_LEAD"
     );
 
+  const [firstName, setFirstName] =
+    useState("");
 
+  const [lastName, setLastName] =
+    useState("");
 
+  const [company, setCompany] =
+    useState("");
+
+  const [email, setEmail] =
+    useState("");
+
+  const [phone, setPhone] =
+    useState("");
 
   function resetForm() {
 
@@ -38,10 +42,13 @@ function useCreateWorkflowForm() {
       "SALESFORCE_CREATE_LEAD"
     );
 
+    setFirstName("");
+    setLastName("");
+    setCompany("");
+    setEmail("");
+    setPhone("");
+
   }
-
-
-
 
   return {
 
@@ -54,11 +61,25 @@ function useCreateWorkflowForm() {
     action,
     setAction,
 
+    firstName,
+    setFirstName,
+
+    lastName,
+    setLastName,
+
+    company,
+    setCompany,
+
+    email,
+    setEmail,
+
+    phone,
+    setPhone,
+
     resetForm
 
   };
 
 }
-
 
 export default useCreateWorkflowForm;

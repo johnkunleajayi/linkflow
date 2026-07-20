@@ -20,6 +20,10 @@ from app.automations.schemas import (
 
 from app.automations.service import AutomationService
 
+from app.execution.engine import (
+    AutomationEngine
+)
+
 
 router = APIRouter(
     prefix="/automations",
@@ -135,5 +139,44 @@ def delete_automation(
 
         raise HTTPException(
             status_code=404,
+            detail=str(e)
+        )
+
+
+@router.post(
+    "/{automation_id}/execute"
+)
+def execute_automation(
+    automation_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Manually executes an automation.
+
+    This endpoint exists for MVP testing.
+    Later, LinkedIn webhooks will invoke
+    the execution engine automatically.
+    """
+
+    try:
+
+        return AutomationEngine.execute_automation(
+            db=db,
+            automation_id=automation_id,
+            event_type="MANUAL_TEST"
+        )
+
+    except ValueError as e:
+
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
             detail=str(e)
         )

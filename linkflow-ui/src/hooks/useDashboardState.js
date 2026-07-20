@@ -13,18 +13,29 @@ function useDashboardState({
     useState(false);
 
 
-
   const [search, setSearch] =
     useState("");
 
 
 
-
-
   async function handleCreateWorkflow({
+
     name,
+
     trigger,
-    action
+
+    action,
+
+    firstName,
+
+    lastName,
+
+    company,
+
+    email,
+
+    phone
+
   }) {
 
 
@@ -36,6 +47,23 @@ function useDashboardState({
 
       action,
 
+      actionConfiguration: {
+
+        lead: {
+
+          FirstName: firstName,
+
+          LastName: lastName,
+
+          Company: company,
+
+          Email: email,
+
+          Phone: phone
+
+        }
+
+      },
 
       onSuccess: () => {
 
@@ -52,20 +80,15 @@ function useDashboardState({
 
 
 
-
-
-
   return {
 
     showModal,
 
     setShowModal,
 
-
     search,
 
     setSearch,
-
 
     handleCreateWorkflow
 

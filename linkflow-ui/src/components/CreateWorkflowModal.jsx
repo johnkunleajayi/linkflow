@@ -6,10 +6,28 @@ function CreateWorkflowModal({
   setTrigger,
   action,
   setAction,
+
+  firstName,
+  setFirstName,
+
+  lastName,
+  setLastName,
+
+  company,
+  setCompany,
+
+  email,
+  setEmail,
+
+  phone,
+  setPhone,
+
   onCancel,
   onCreate,
 }) {
+
   return (
+
     <div className="modal-overlay">
 
       <div className="modal">
@@ -39,9 +57,13 @@ function CreateWorkflowModal({
               setTrigger(e.target.value)
             }
           >
-            <option value="LINKEDIN_CONNECTION_ACCEPTED">
+
+            <option
+              value="LINKEDIN_CONNECTION_ACCEPTED"
+            >
               LinkedIn Connection Accepted
             </option>
+
           </select>
 
         </div>
@@ -56,12 +78,89 @@ function CreateWorkflowModal({
               setAction(e.target.value)
             }
           >
-            <option value="SALESFORCE_CREATE_LEAD">
+
+            <option
+              value="SALESFORCE_CREATE_LEAD"
+            >
               Salesforce Create Lead
             </option>
+
           </select>
 
         </div>
+
+        {action === "SALESFORCE_CREATE_LEAD" && (
+
+          <>
+
+            <div className="form-group">
+
+              <label>Lead First Name</label>
+
+              <input
+                value={firstName}
+                onChange={(e) =>
+                  setFirstName(e.target.value)
+                }
+              />
+
+            </div>
+
+            <div className="form-group">
+
+              <label>Lead Last Name</label>
+
+              <input
+                value={lastName}
+                onChange={(e) =>
+                  setLastName(e.target.value)
+                }
+              />
+
+            </div>
+
+            <div className="form-group">
+
+              <label>Company</label>
+
+              <input
+                value={company}
+                onChange={(e) =>
+                  setCompany(e.target.value)
+                }
+              />
+
+            </div>
+
+            <div className="form-group">
+
+              <label>Email</label>
+
+              <input
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
+              />
+
+            </div>
+
+            <div className="form-group">
+
+              <label>Phone</label>
+
+              <input
+                value={phone}
+                onChange={(e) =>
+                  setPhone(e.target.value)
+                }
+              />
+
+            </div>
+
+          </>
+
+        )}
 
         <div className="modal-buttons">
 
@@ -87,7 +186,9 @@ function CreateWorkflowModal({
       </div>
 
     </div>
+
   );
+
 }
 
 export default CreateWorkflowModal;
