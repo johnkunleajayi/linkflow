@@ -50,6 +50,48 @@ def get_workflows(
         db=db,
         workspace_id=workspace_id
     )
+    
+    
+@router.put("/{automation_id}")
+def update_workflow(
+    automation_id: int,
+    payload: WorkflowCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Updates an existing workflow.
+
+    Updates:
+    - Automation name
+    - Trigger
+    - Action
+    """
+
+    try:
+
+        return WorkflowService.update_workflow(
+            db=db,
+            automation_id=automation_id,
+            name=payload.name,
+            trigger=payload.trigger,
+            action=payload.action,
+            trigger_configuration=payload.trigger_configuration,
+            action_configuration=payload.action_configuration
+        )
+
+    except ValueError as e:
+
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
 
 
 @router.delete("/{automation_id}")

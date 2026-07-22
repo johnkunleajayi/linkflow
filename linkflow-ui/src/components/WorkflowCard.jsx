@@ -2,8 +2,38 @@ function WorkflowCard({
   workflow,
   prettyTrigger,
   prettyAction,
+  onEdit,
+  onDelete
 }) {
+
+  async function handleDelete() {
+
+    const confirmed = window.confirm(
+
+      `Delete workflow "${workflow.name}"?`
+
+    );
+
+    if (!confirmed) {
+
+      return;
+
+    }
+
+    await onDelete(
+      workflow.automation_id
+    );
+
+  }
+
+  function handleEdit() {
+
+    onEdit(workflow);
+
+  }
+
   return (
+
     <div className="workflow-card">
 
       <div className="workflow-header">
@@ -56,18 +86,26 @@ function WorkflowCard({
 
       <div className="workflow-actions">
 
-        <button className="secondary-btn">
+        <button
+          className="secondary-btn"
+          onClick={handleEdit}
+        >
           Edit
         </button>
 
-        <button className="danger-btn">
+        <button
+          className="danger-btn"
+          onClick={handleDelete}
+        >
           Delete
         </button>
 
       </div>
 
     </div>
+
   );
+
 }
 
 export default WorkflowCard;

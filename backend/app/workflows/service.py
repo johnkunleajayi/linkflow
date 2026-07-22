@@ -120,11 +120,89 @@ class WorkflowService:
                     "name": automation.name,
                     "status": automation.status,
                     "trigger": trigger.trigger_type,
-                    "action": action.action_type
+                    "action": action.action_type,
+                    "trigger_configuration": trigger.configuration,
+                    "action_configuration": action.configuration
                 }
             )
 
         return workflows
+
+    @staticmethod
+    def update_workflow(
+        db: Session,
+        automation_id: int,
+        name: str,
+        trigger: str,
+        action: str,
+        action_configuration: dict | None = None,
+        trigger_configuration: dict | None = None
+    ):
+        """
+        Updates an existing workflow.
+
+        Updates:
+        - Automation
+        - Trigger
+        - Action
+        """
+
+        automation = (
+            db.query(Automation)
+            .filter(
+                Automation.id == automation_id
+            )
+            .first()
+        )
+
+        if automation is None:
+            raise ValueError("Workflow not found")
+
+        automation.name = name
+
+        trigger_record = (
+            db.query(AutomationTrigger)
+            .filter(
+                AutomationTrigger.automation_id == automation_id
+            )
+            .first()
+        )
+
+        if trigger_record is None:
+            raise ValueError("Workflow trigger not found")
+
+        trigger_record.trigger_type = trigger
+        trigger_record.configuration = (
+            trigger_configuration or {}
+        )
+
+        action_record = (
+            db.query(AutomationAction)
+            .filter(
+                AutomationAction.automation_id == automation_id
+            )
+            .first()
+        )
+
+        if action_record is None:
+            raise ValueError("Workflow action not found")
+
+        action_record.action_type = action
+        action_record.configuration = (
+            action_configuration or {}
+        )
+
+        db.commit()
+
+        return {
+            "automation_id": automation.id,
+            "name": automation.name,
+            "trigger": trigger_record.trigger_type,
+            "action": action_record.action_type,
+            "trigger_configuration": trigger_record.configuration,
+            "action_configuration": action_record.configuration,
+            "status": automation.status
+        }
 
     @staticmethod
     def delete_workflow(

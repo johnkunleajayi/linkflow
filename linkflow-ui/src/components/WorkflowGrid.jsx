@@ -4,7 +4,9 @@ function WorkflowGrid({
   loading,
   workflows,
   prettyTrigger,
-  prettyAction
+  prettyAction,
+  onDelete,
+  onEdit
 }) {
 
   if (loading) {
@@ -16,7 +18,6 @@ function WorkflowGrid({
     );
 
   }
-
 
   return (
 
@@ -41,6 +42,14 @@ function WorkflowGrid({
               prettyAction
             }
 
+            onDelete={
+              onDelete
+            }
+
+            onEdit={
+              onEdit
+            }
+
           />
 
         ))
@@ -51,6 +60,5 @@ function WorkflowGrid({
   );
 
 }
-
 
 export default WorkflowGrid;

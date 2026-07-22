@@ -4,7 +4,9 @@ import {
 
 import {
   getWorkflows,
-  createWorkflowApi
+  createWorkflowApi,
+  updateWorkflowApi,
+  deleteWorkflowApi
 } from "../api/workflowApi";
 
 
@@ -109,6 +111,100 @@ function useWorkflows() {
   }
 
 
+  async function updateWorkflow({
+
+    automationId,
+
+    name,
+
+    trigger,
+
+    action,
+
+    actionConfiguration,
+
+    onSuccess
+
+  }) {
+
+    if (!name.trim()) {
+
+      alert(
+        "Workflow name is required."
+      );
+
+      return;
+
+    }
+
+    try {
+
+      setCreating(true);
+
+      await updateWorkflowApi({
+
+        automationId,
+
+        name,
+
+        trigger,
+
+        action,
+
+        actionConfiguration
+
+      });
+
+      await loadWorkflows();
+
+      if (onSuccess) {
+
+        onSuccess();
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Failed to update workflow."
+      );
+
+    } finally {
+
+      setCreating(false);
+
+    }
+
+  }
+
+
+  async function deleteWorkflow(
+    automationId
+  ) {
+
+    try {
+
+      await deleteWorkflowApi(
+        automationId
+      );
+
+      await loadWorkflows();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Failed to delete workflow."
+      );
+
+    }
+
+  }
+
+
   return {
 
     workflows,
@@ -119,7 +215,11 @@ function useWorkflows() {
 
     loadWorkflows,
 
-    createWorkflow
+    createWorkflow,
+
+    updateWorkflow,
+
+    deleteWorkflow
 
   };
 

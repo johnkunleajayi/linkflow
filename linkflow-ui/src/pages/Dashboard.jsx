@@ -1,5 +1,6 @@
 import {
-  useEffect
+  useEffect,
+  useState
 } from "react";
 
 import "../App.css";
@@ -28,9 +29,20 @@ function Dashboard() {
     loading,
     creating,
     loadWorkflows,
-    createWorkflow
+    createWorkflow,
+    updateWorkflow,
+    deleteWorkflow
 
   } = useWorkflows();
+
+
+  const [
+
+    editingWorkflow,
+
+    setEditingWorkflow
+
+  ] = useState(null);
 
 
   const {
@@ -59,6 +71,8 @@ function Dashboard() {
     phone,
     setPhone,
 
+    populateForm,
+
     resetForm
 
   } = useCreateWorkflowForm();
@@ -79,6 +93,10 @@ function Dashboard() {
   } = useDashboardState({
 
     createWorkflow,
+
+    updateWorkflow,
+
+    editingWorkflow,
 
     resetForm
 
@@ -111,14 +129,36 @@ function Dashboard() {
     ).length;
 
 
+  function handleEdit(workflow) {
+
+    setEditingWorkflow(workflow);
+
+    populateForm(workflow);
+
+    setShowModal(true);
+
+  }
+
+
+  function handleNewWorkflow() {
+
+    setEditingWorkflow(null);
+
+    resetForm();
+
+    setShowModal(true);
+
+  }
+
+
   return (
 
     <div className="app">
 
       <Hero
 
-        onNewWorkflow={() =>
-          setShowModal(true)
+        onNewWorkflow={
+          handleNewWorkflow
         }
 
       />
@@ -167,6 +207,14 @@ function Dashboard() {
           prettyAction
         }
 
+        onDelete={
+          deleteWorkflow
+        }
+
+        onEdit={
+          handleEdit
+        }
+
       />
 
       {showModal && (
@@ -174,6 +222,10 @@ function Dashboard() {
         <CreateWorkflowModal
 
           creating={creating}
+
+          editingWorkflow={
+            editingWorkflow
+          }
 
           name={name}
           setName={setName}

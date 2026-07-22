@@ -53,3 +53,67 @@ export async function createWorkflowApi({
   );
 
 }
+
+
+export async function updateWorkflowApi({
+
+  automationId,
+
+  name,
+
+  trigger,
+
+  action,
+
+  actionConfiguration
+
+}) {
+
+  return await apiClient(
+
+    `/workflows/${automationId}`,
+
+    {
+
+      method: "PUT",
+
+      body: JSON.stringify({
+
+        name,
+
+        trigger,
+
+        action,
+
+        trigger_configuration: {},
+
+        action_configuration:
+
+          actionConfiguration || {}
+
+      })
+
+    }
+
+  );
+
+}
+
+
+export async function deleteWorkflowApi(
+  automationId
+) {
+
+  return await apiClient(
+
+    `/workflows/${automationId}`,
+
+    {
+
+      method: "DELETE"
+
+    }
+
+  );
+
+}

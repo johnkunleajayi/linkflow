@@ -30,6 +30,57 @@ function useCreateWorkflowForm() {
   const [phone, setPhone] =
     useState("");
 
+
+
+  function populateForm(workflow) {
+
+    if (!workflow) {
+
+      return;
+
+    }
+
+    setName(
+      workflow.name || ""
+    );
+
+    setTrigger(
+      workflow.trigger ||
+      "LINKEDIN_CONNECTION_ACCEPTED"
+    );
+
+    setAction(
+      workflow.action ||
+      "SALESFORCE_CREATE_LEAD"
+    );
+
+    const lead =
+      workflow.action_configuration?.lead || {};
+
+    setFirstName(
+      lead.FirstName || ""
+    );
+
+    setLastName(
+      lead.LastName || ""
+    );
+
+    setCompany(
+      lead.Company || ""
+    );
+
+    setEmail(
+      lead.Email || ""
+    );
+
+    setPhone(
+      lead.Phone || ""
+    );
+
+  }
+
+
+
   function resetForm() {
 
     setName("");
@@ -43,9 +94,13 @@ function useCreateWorkflowForm() {
     );
 
     setFirstName("");
+
     setLastName("");
+
     setCompany("");
+
     setEmail("");
+
     setPhone("");
 
   }
@@ -75,6 +130,8 @@ function useCreateWorkflowForm() {
 
     phone,
     setPhone,
+
+    populateForm,
 
     resetForm
 

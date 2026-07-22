@@ -1,9 +1,13 @@
 function CreateWorkflowModal({
   creating,
+  editingWorkflow,
+
   name,
   setName,
+
   trigger,
   setTrigger,
+
   action,
   setAction,
 
@@ -26,13 +30,22 @@ function CreateWorkflowModal({
   onCreate,
 }) {
 
+  const isEditing =
+    editingWorkflow !== null;
+
   return (
 
     <div className="modal-overlay">
 
       <div className="modal">
 
-        <h2>Create Workflow</h2>
+        <h2>
+          {
+            isEditing
+              ? "Edit Workflow"
+              : "Create Workflow"
+          }
+        </h2>
 
         <div className="form-group">
 
@@ -176,9 +189,19 @@ function CreateWorkflowModal({
             disabled={creating}
             onClick={onCreate}
           >
-            {creating
-              ? "Creating..."
-              : "Create Workflow"}
+            {
+              creating
+                ? (
+                    isEditing
+                      ? "Saving..."
+                      : "Creating..."
+                  )
+                : (
+                    isEditing
+                      ? "Save Changes"
+                      : "Create Workflow"
+                  )
+            }
           </button>
 
         </div>
