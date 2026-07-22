@@ -125,3 +125,49 @@ class WorkflowService:
             )
 
         return workflows
+
+    @staticmethod
+    def delete_workflow(
+        db: Session,
+        automation_id: int
+    ):
+        """
+        Deletes an entire workflow,
+        including its triggers,
+        actions and automation.
+        """
+
+        automation = (
+            db.query(Automation)
+            .filter(
+                Automation.id == automation_id
+            )
+            .first()
+        )
+
+        if automation is None:
+            raise ValueError("Workflow not found")
+
+        (
+            db.query(AutomationTrigger)
+            .filter(
+                AutomationTrigger.automation_id == automation_id
+            )
+            .delete()
+        )
+
+        (
+            db.query(AutomationAction)
+            .filter(
+                AutomationAction.automation_id == automation_id
+            )
+            .delete()
+        )
+
+        db.delete(automation)
+
+        db.commit()
+
+        return {
+            "message": "Workflow deleted successfully."
+        }

@@ -87,13 +87,75 @@ export async function connectApplicationApi(
   applicationName
 ) {
 
-  return {
+  switch (applicationName) {
 
-    name: applicationName,
+    case "Salesforce": {
 
-    status: "CONNECTED"
+      const response = await fetch(
 
-  };
+        `${API_URL}/oauth/salesforce?workspace_id=1`
+
+      );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Unable to start Salesforce OAuth."
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      window.location.href =
+        data.authorization_url;
+
+      return;
+
+    }
+
+
+    case "LinkedIn": {
+
+      const response = await fetch(
+
+        `${API_URL}/oauth/linkedin?workspace_id=1`
+
+      );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Unable to start LinkedIn OAuth."
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      window.location.href =
+        data.authorization_url;
+
+      return;
+
+    }
+
+
+    default:
+
+      throw new Error(
+        `${applicationName} is not supported yet.`
+      );
+
+  }
 
 }
 

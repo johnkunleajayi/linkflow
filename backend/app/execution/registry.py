@@ -10,7 +10,7 @@ class ExecutorRegistry:
     """
 
     _executors = {
-        "SALESFORCE_CREATE_LEAD": SalesforceExecutor(),
+        "salesforce.create_lead": SalesforceExecutor(),
     }
 
     @classmethod

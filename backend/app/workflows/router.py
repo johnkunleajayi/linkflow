@@ -1,6 +1,7 @@
 from fastapi import (
     APIRouter,
-    Depends
+    Depends,
+    HTTPException
 )
 
 from sqlalchemy.orm import Session
@@ -49,3 +50,39 @@ def get_workflows(
         db=db,
         workspace_id=workspace_id
     )
+
+
+@router.delete("/{automation_id}")
+def delete_workflow(
+    automation_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Deletes a complete workflow.
+
+    This removes:
+    - Automation
+    - Trigger(s)
+    - Action(s)
+    """
+
+    try:
+
+        return WorkflowService.delete_workflow(
+            db=db,
+            automation_id=automation_id
+        )
+
+    except ValueError as e:
+
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )

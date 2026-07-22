@@ -6,8 +6,7 @@ import {
 
 import {
   getConnections,
-  connectApplicationApi,
-  getSalesforceAuthorizationUrl
+  connectApplicationApi
 } from "../api/connectionApi";
 
 
@@ -25,15 +24,11 @@ function useConnections() {
 
 
 
-
   useEffect(() => {
 
     loadConnections();
 
-
   }, []);
-
-
 
 
 
@@ -47,14 +42,11 @@ function useConnections() {
       setLoading(true);
 
 
-
       const data =
         await getConnections();
 
 
-
       setConnections(data);
-
 
 
     } catch (error) {
@@ -63,20 +55,14 @@ function useConnections() {
       console.error(error);
 
 
-
     } finally {
 
 
       setLoading(false);
 
-
     }
 
-
   }
-
-
-
 
 
 
@@ -87,63 +73,7 @@ function useConnections() {
     try {
 
 
-
-      if (name === "Salesforce") {
-
-
-
-        const data =
-          await getSalesforceAuthorizationUrl();
-
-
-
-        window.location.href =
-          data.authorization_url;
-
-
-
-        return;
-
-
-      }
-
-
-
-
-
-
       await connectApplicationApi(name);
-
-
-
-
-      setConnections((current) =>
-
-
-        current.map((connection) =>
-
-
-
-          connection.name === name
-
-
-            ? {
-
-                ...connection,
-
-                status: "CONNECTED"
-
-              }
-
-
-            : connection
-
-
-        )
-
-
-      );
-
 
 
     } catch (error) {
@@ -152,19 +82,13 @@ function useConnections() {
       console.error(error);
 
 
-
       alert(
         "Unable to connect application."
       );
 
-
     }
 
-
   }
-
-
-
 
 
 
@@ -180,12 +104,10 @@ function useConnections() {
 
     loadConnections
 
-
   };
 
 
 }
-
 
 
 export default useConnections;
