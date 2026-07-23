@@ -15,11 +15,13 @@ import Stats from "../components/Stats";
 import Toolbar from "../components/Toolbar";
 import CreateWorkflowModal from "../components/CreateWorkflowModal";
 import WorkflowGrid from "../components/WorkflowGrid";
+import ExecutionLogsModal from "../components/ExecutionLogsModal";
 
 import useWorkflows from "../hooks/useWorkflows";
 import useWorkflowSearch from "../hooks/useWorkflowSearch";
 import useCreateWorkflowForm from "../hooks/useCreateWorkflowForm";
 import useDashboardState from "../hooks/useDashboardState";
+import useExecutionLogs from "../hooks/useExecutionLogs";
 
 
 function Dashboard() {
@@ -34,6 +36,17 @@ function Dashboard() {
     deleteWorkflow
 
   } = useWorkflows();
+
+
+  const {
+
+    logs,
+    loading: logsLoading,
+    selectedWorkflowId,
+    loadExecutionLogs,
+    clearExecutionLogs
+
+  } = useExecutionLogs();
 
 
   const [
@@ -151,6 +164,24 @@ function Dashboard() {
   }
 
 
+  async function handleViewExecutionLogs(
+    workflow
+  ) {
+
+    await loadExecutionLogs(
+      workflow.automation_id
+    );
+
+  }
+
+
+  function handleCloseExecutionLogs() {
+
+    clearExecutionLogs();
+
+  }
+
+
   return (
 
     <div className="app">
@@ -213,6 +244,10 @@ function Dashboard() {
 
         onEdit={
           handleEdit
+        }
+
+        onViewLogs={
+          handleViewExecutionLogs
         }
 
       />
@@ -282,6 +317,26 @@ function Dashboard() {
         />
 
       )}
+
+      {
+
+        selectedWorkflowId !== null && (
+
+          <ExecutionLogsModal
+
+            logs={logs}
+
+            loading={logsLoading}
+
+            onClose={
+              handleCloseExecutionLogs
+            }
+
+          />
+
+        )
+
+      }
 
     </div>
 

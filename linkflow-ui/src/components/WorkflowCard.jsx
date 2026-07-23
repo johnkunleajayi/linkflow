@@ -3,7 +3,8 @@ function WorkflowCard({
   prettyTrigger,
   prettyAction,
   onEdit,
-  onDelete
+  onDelete,
+  onViewLogs
 }) {
 
   async function handleDelete() {
@@ -29,6 +30,16 @@ function WorkflowCard({
   function handleEdit() {
 
     onEdit(workflow);
+
+  }
+
+  function handleViewLogs() {
+
+    if (onViewLogs) {
+
+      onViewLogs(workflow);
+
+    }
 
   }
 
@@ -91,6 +102,13 @@ function WorkflowCard({
           onClick={handleEdit}
         >
           Edit
+        </button>
+
+        <button
+          className="secondary-btn"
+          onClick={handleViewLogs}
+        >
+          View Logs
         </button>
 
         <button

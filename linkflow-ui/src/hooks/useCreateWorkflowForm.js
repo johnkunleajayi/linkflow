@@ -7,12 +7,12 @@ function useCreateWorkflowForm() {
 
   const [trigger, setTrigger] =
     useState(
-      "LINKEDIN_CONNECTION_ACCEPTED"
+      "connection.accepted"
     );
 
   const [action, setAction] =
     useState(
-      "SALESFORCE_CREATE_LEAD"
+      "salesforce.create_lead"
     );
 
   const [firstName, setFirstName] =
@@ -46,12 +46,12 @@ function useCreateWorkflowForm() {
 
     setTrigger(
       workflow.trigger ||
-      "LINKEDIN_CONNECTION_ACCEPTED"
+      "connection.accepted"
     );
 
     setAction(
       workflow.action ||
-      "SALESFORCE_CREATE_LEAD"
+      "salesforce.create_lead"
     );
 
     const lead =
@@ -86,11 +86,11 @@ function useCreateWorkflowForm() {
     setName("");
 
     setTrigger(
-      "LINKEDIN_CONNECTION_ACCEPTED"
+      "connection.accepted"
     );
 
     setAction(
-      "SALESFORCE_CREATE_LEAD"
+      "salesforce.create_lead"
     );
 
     setFirstName("");
