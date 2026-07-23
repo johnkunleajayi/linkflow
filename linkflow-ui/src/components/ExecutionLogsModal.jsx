@@ -1,3 +1,7 @@
+import {
+  useState
+} from "react";
+
 function ExecutionLogsModal({
 
   logs,
@@ -8,119 +12,393 @@ function ExecutionLogsModal({
 
 }) {
 
+  const [
+
+    selectedLog,
+
+    setSelectedLog
+
+  ] = useState(null);
+
+  function formatStatus(status) {
+
+    switch (status) {
+
+      case "SUCCESS":
+        return "status-badge success";
+
+      case "FAILED":
+        return "status-badge failed";
+
+      case "SKIPPED":
+        return "status-badge skipped";
+
+      default:
+        return "status-badge";
+
+    }
+
+  }
+
+  function formatDate(date) {
+
+    return new Date(date).toLocaleString(
+      undefined,
+      {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }
+    );
+
+  }
+
+  function getExecutionResult() {
+
+    return (
+      selectedLog?.result?.results?.[0] || {}
+    );
+
+  }
+
+  const execution =
+    getExecutionResult();
+
   return (
 
-    <div className="modal-overlay">
+    <>
 
-      <div className="modal">
+      <div className="modal-overlay">
 
-        <h2>
-          Execution Logs
-        </h2>
+        <div className="modal">
 
-        {
+          <h2>
+            Execution Logs
+          </h2>
 
-          loading ? (
+          {
 
-            <p>
-              Loading execution logs...
-            </p>
+            loading ? (
 
-          ) : logs.length === 0 ? (
+              <p>
+                Loading execution logs...
+              </p>
 
-            <p>
-              No execution logs found.
-            </p>
+            ) : logs.length === 0 ? (
 
-          ) : (
+              <p>
+                No execution logs found.
+              </p>
 
-            <table
-              className="logs-table"
-            >
+            ) : (
 
-              <thead>
+              <table
+                className="logs-table"
+              >
 
-                <tr>
+                <thead>
 
-                  <th>Status</th>
+                  <tr>
 
-                  <th>Event</th>
+                    <th>Status</th>
 
-                  <th>Executed At</th>
+                    <th>Event</th>
 
-                </tr>
+                    <th>Executed At</th>
 
-              </thead>
+                    <th></th>
 
-              <tbody>
+                  </tr>
 
-                {
+                </thead>
 
-                  logs.map((log) => (
+                <tbody>
 
-                    <tr
-                      key={log.id}
-                    >
+                  {
 
-                      <td>
+                    logs.map((log) => (
 
-                        {log.status}
+                      <tr
+                        key={log.id}
+                      >
 
-                      </td>
+                        <td>
 
-                      <td>
+                          <span
+                            className={
+                              formatStatus(
+                                log.status
+                              )
+                            }
+                          >
 
-                        {log.event_type}
+                            {log.status}
 
-                      </td>
+                          </span>
 
-                      <td>
+                        </td>
 
-                        {
+                        <td>
 
-                          new Date(
-                            log.executed_at
-                          ).toLocaleString()
+                          {log.event_type}
 
-                        }
+                        </td>
 
-                      </td>
+                        <td>
 
-                    </tr>
+                          {
 
-                  ))
+                            formatDate(
+                              log.executed_at
+                            )
 
-                }
+                          }
 
-              </tbody>
+                        </td>
 
-            </table>
+                        <td>
 
-          )
+                          <button
 
-        }
+                            className="secondary-btn"
 
-        <div
-          className="modal-buttons"
-        >
+                            onClick={() =>
+                              setSelectedLog(log)
+                            }
 
-          <button
+                          >
 
-            className="primary-btn"
+                            View Details
 
-            onClick={onClose}
+                          </button>
 
+                        </td>
+
+                      </tr>
+
+                    ))
+
+                  }
+
+                </tbody>
+
+              </table>
+
+            )
+
+          }
+
+          <div
+            className="modal-buttons"
           >
 
-            Close
+            <button
 
-          </button>
+              className="primary-btn"
+
+              onClick={onClose}
+
+            >
+
+              Close
+
+            </button>
+
+          </div>
 
         </div>
 
       </div>
 
-    </div>
+      {
+
+        selectedLog && (
+
+          <div className="modal-overlay">
+
+            <div className="modal">
+
+              <h2>
+
+                Execution Details
+
+              </h2>
+
+              <div className="form-group">
+
+                <label>Status</label>
+
+                <span
+                  className={
+                    formatStatus(
+                      selectedLog.status
+                    )
+                  }
+                >
+
+                  {selectedLog.status}
+
+                </span>
+
+              </div>
+
+              <div className="form-group">
+
+                <label>Automation</label>
+
+                <p>
+
+                  {
+                    selectedLog.result
+                      ?.automation_name ||
+                    "N/A"
+                  }
+
+                </p>
+
+              </div>
+
+              <div className="form-group">
+
+                <label>Execution Mode</label>
+
+                <p>
+
+                  {
+
+                    execution.mode ||
+                    "N/A"
+
+                  }
+
+                </p>
+
+              </div>
+
+              <div className="form-group">
+
+                <label>HTTP Status</label>
+
+                <p>
+
+                  {
+
+                    execution.status_code ??
+                    "N/A"
+
+                  }
+
+                </p>
+
+              </div>
+
+              <div className="form-group">
+
+                <label>Lead ID</label>
+
+                <p>
+
+                  {
+
+                    execution.lead_id ||
+                    "Not Available"
+
+                  }
+
+                </p>
+
+              </div>
+
+              <div className="form-group">
+
+                <label>Message</label>
+
+                <p>
+
+                  {
+
+                    execution.message ||
+                    "No message"
+
+                  }
+
+                </p>
+
+              </div>
+
+              <div className="form-group">
+
+                <label>Executed At</label>
+
+                <p>
+
+                  {
+
+                    formatDate(
+                      selectedLog.executed_at
+                    )
+
+                  }
+
+                </p>
+
+              </div>
+
+              <div className="form-group">
+
+                <label>Raw Response</label>
+
+                <pre
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    overflowX: "auto",
+                    background: "#f8fafc",
+                    padding: "16px",
+                    borderRadius: "12px",
+                    fontSize: "13px"
+                  }}
+                >
+
+                  {
+
+                    JSON.stringify(
+                      selectedLog.result,
+                      null,
+                      2
+                    )
+
+                  }
+
+                </pre>
+
+              </div>
+
+              <div className="modal-buttons">
+
+                <button
+
+                  className="primary-btn"
+
+                  onClick={() =>
+                    setSelectedLog(null)
+                  }
+
+                >
+
+                  Close
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )
+
+      }
+
+    </>
 
   );
 

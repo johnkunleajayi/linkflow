@@ -413,6 +413,185 @@ body {
 }
 
 /* ================================= */
+/* EXECUTION LOG BADGES */
+/* ================================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.status-badge.success {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-badge.failed {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-badge.skipped {
+    background: #fef9c3;
+    color: #a16207;
+    border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+/* ================================= */
+/* EXECUTION LOG MODAL */
+/* ================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+    z-index: 1000;
+}
+
+
+/*
+ Slide-in drawer style
+*/
+
+.modal {
+
+    width: 620px;
+    max-width: 90%;
+
+    height: 100vh;
+
+    background: var(--card);
+
+    padding: 32px;
+
+    border-left: 1px solid var(--border);
+
+    box-shadow:
+        -20px 0 40px rgba(15,23,42,0.15);
+
+    overflow-y: auto;
+
+    animation:
+        slideInRight
+        0.3s ease forwards;
+
+}
+
+
+.modal h2 {
+
+    font-size: 1.5rem;
+
+    font-weight: 800;
+
+    margin-bottom: 24px;
+
+}
+
+
+/*
+ Keep table usable
+*/
+
+.logs-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+
+.logs-table td,
+.logs-table th {
+
+    white-space: nowrap;
+
+}
+
+
+/*
+ Details section
+*/
+
+.execution-details {
+
+    background: #f8fafc;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    margin-top: 20px;
+
+}
+
+
+/*
+ Animation
+*/
+
+@keyframes slideInRight {
+
+    from {
+
+        transform: translateX(100%);
+
+    }
+
+    to {
+
+        transform: translateX(0);
+
+    }
+
+}
+
+/* ================================= */
+/* EXECUTION LOG TABLE */
+/* ================================= */
+
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.logs-table th {
+    text-align: left;
+    padding: 14px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+}
+
+.logs-table td {
+    padding: 16px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.logs-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* ================================= */
 /* LOADING STATE */
 /* ================================= */
 
