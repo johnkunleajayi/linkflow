@@ -7,7 +7,8 @@ function WorkflowGrid({
   prettyAction,
   onDelete,
   onEdit,
-  onViewLogs
+  onViewLogs,
+  onTest
 }) {
 
   if (loading) {
@@ -53,6 +54,10 @@ function WorkflowGrid({
 
             onViewLogs={
               onViewLogs
+            }
+
+            onTest={
+              onTest
             }
 
           />

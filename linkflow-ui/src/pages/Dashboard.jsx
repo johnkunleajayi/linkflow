@@ -23,6 +23,8 @@ import useCreateWorkflowForm from "../hooks/useCreateWorkflowForm";
 import useDashboardState from "../hooks/useDashboardState";
 import useExecutionLogs from "../hooks/useExecutionLogs";
 
+import apiClient from "../api/apiClient";
+
 
 function Dashboard() {
 
@@ -182,6 +184,59 @@ function Dashboard() {
   }
 
 
+  async function handleTestWorkflow(
+    workflow
+  ) {
+
+    try {
+
+      const payload = {
+
+        event: "LINKEDIN_COMMENT",
+
+        keyword: "pricing",
+
+        comment:
+          "Can I get pricing?"
+
+      };
+
+
+      const result =
+        await apiClient(
+
+          "/events/linkedin",
+
+          {
+
+            method: "POST",
+
+            body: JSON.stringify(payload)
+
+          }
+
+        );
+
+
+      console.log(result);
+
+      alert(
+        "Workflow executed successfully."
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Workflow execution failed."
+      );
+
+    }
+
+  }
+
+
   return (
 
     <div className="app">
@@ -248,6 +303,10 @@ function Dashboard() {
 
         onViewLogs={
           handleViewExecutionLogs
+        }
+
+        onTest={
+          handleTestWorkflow
         }
 
       />

@@ -54,7 +54,9 @@ function useWorkflows() {
 
     action,
 
-    actionConfiguration,
+    keyword,
+
+    replyMessage,
 
     onSuccess
 
@@ -82,7 +84,13 @@ function useWorkflows() {
 
         action,
 
-        actionConfiguration
+        actionConfiguration: {
+
+          keyword,
+
+          message: replyMessage
+
+        }
 
       });
 
@@ -121,7 +129,9 @@ function useWorkflows() {
 
     action,
 
-    actionConfiguration,
+    keyword,
+
+    replyMessage,
 
     onSuccess
 
@@ -151,7 +161,13 @@ function useWorkflows() {
 
         action,
 
-        actionConfiguration
+        actionConfiguration: {
+
+          keyword,
+
+          message: replyMessage
+
+        }
 
       });
 

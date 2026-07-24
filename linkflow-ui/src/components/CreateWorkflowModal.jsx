@@ -11,20 +11,11 @@ function CreateWorkflowModal({
   action,
   setAction,
 
-  firstName,
-  setFirstName,
+  keyword,
+  setKeyword,
 
-  lastName,
-  setLastName,
-
-  company,
-  setCompany,
-
-  email,
-  setEmail,
-
-  phone,
-  setPhone,
+  replyMessage,
+  setReplyMessage,
 
   onCancel,
   onCreate,
@@ -49,13 +40,14 @@ function CreateWorkflowModal({
 
         <div className="form-group">
 
-          <label>Name</label>
+          <label>Workflow Name</label>
 
           <input
             value={name}
             onChange={(e) =>
               setName(e.target.value)
             }
+            placeholder="Welcome New Connections"
           />
 
         </div>
@@ -71,15 +63,37 @@ function CreateWorkflowModal({
             }
           >
 
-            <option
-              value="LINKEDIN_CONNECTION_ACCEPTED"
-            >
+            <option value="LINKEDIN_COMMENT">
+              LinkedIn Comment
+            </option>
+
+            <option value="LINKEDIN_CONNECTION_ACCEPTED">
               LinkedIn Connection Accepted
             </option>
 
           </select>
 
         </div>
+
+        {
+          trigger === "LINKEDIN_COMMENT" && (
+
+            <div className="form-group">
+
+              <label>Keyword</label>
+
+              <input
+                value={keyword}
+                onChange={(e) =>
+                  setKeyword(e.target.value)
+                }
+                placeholder="ebook"
+              />
+
+            </div>
+
+          )
+        }
 
         <div className="form-group">
 
@@ -92,88 +106,30 @@ function CreateWorkflowModal({
             }
           >
 
-            <option
-              value="SALESFORCE_CREATE_LEAD"
-            >
-              Salesforce Create Lead
+            <option value="linkedin.reply">
+                Reply to Comment
             </option>
 
           </select>
 
         </div>
 
-        {action === "SALESFORCE_CREATE_LEAD" && (
+        <div className="form-group">
 
-          <>
+          <label>Reply Message</label>
 
-            <div className="form-group">
+          <textarea
+            rows={6}
+            value={replyMessage}
+            onChange={(e) =>
+              setReplyMessage(
+                e.target.value
+              )
+            }
+            placeholder="Hi 👋 Thanks for your comment. Check your inbox for the guide."
+          />
 
-              <label>Lead First Name</label>
-
-              <input
-                value={firstName}
-                onChange={(e) =>
-                  setFirstName(e.target.value)
-                }
-              />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>Lead Last Name</label>
-
-              <input
-                value={lastName}
-                onChange={(e) =>
-                  setLastName(e.target.value)
-                }
-              />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>Company</label>
-
-              <input
-                value={company}
-                onChange={(e) =>
-                  setCompany(e.target.value)
-                }
-              />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>Email</label>
-
-              <input
-                value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
-              />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>Phone</label>
-
-              <input
-                value={phone}
-                onChange={(e) =>
-                  setPhone(e.target.value)
-                }
-              />
-
-            </div>
-
-          </>
-
-        )}
+        </div>
 
         <div className="modal-buttons">
 
@@ -189,6 +145,7 @@ function CreateWorkflowModal({
             disabled={creating}
             onClick={onCreate}
           >
+
             {
               creating
                 ? (
@@ -202,6 +159,7 @@ function CreateWorkflowModal({
                       : "Create Workflow"
                   )
             }
+
           </button>
 
         </div>

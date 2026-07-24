@@ -2,24 +2,21 @@ class ConditionEngine:
     """
     Evaluates workflow conditions.
 
-    Version 1 (MVP)
+    MVP
 
-    If no conditions exist,
-    the workflow is allowed
-    to continue.
+    Supports:
 
-    Future versions will support:
+    - keyword contains
+
+    Future versions:
 
     - equals
     - not equals
-    - contains
     - starts with
     - ends with
-    - greater than
-    - less than
+    - regex
     - AND
     - OR
-    - nested conditions
     """
 
     @staticmethod
@@ -31,7 +28,31 @@ class ConditionEngine:
         Returns True when the workflow
         should continue.
 
-        Version 1 always returns True.
+        Rules:
+
+        1. No conditions -> continue
+
+        2. If keyword exists, the comment
+           must contain that keyword.
         """
 
-        return True
+        if conditions is None:
+            return True
+
+        if payload is None:
+            payload = {}
+
+        keyword = conditions.get("keyword")
+
+        if not keyword:
+            return True
+
+        comment = (
+            payload.get("comment") or ""
+        )
+
+        return (
+            keyword.lower()
+            in
+            comment.lower()
+        )

@@ -2,6 +2,10 @@ from app.execution.salesforce_executor import (
     SalesforceExecutor
 )
 
+from app.execution.linkedin_reply_executor import (
+    LinkedInReplyExecutor
+)
+
 
 class ExecutorRegistry:
     """
@@ -10,7 +14,13 @@ class ExecutorRegistry:
     """
 
     _executors = {
-        "salesforce.create_lead": SalesforceExecutor(),
+
+        "salesforce.create_lead":
+            SalesforceExecutor(),
+
+        "linkedin.reply":
+            LinkedInReplyExecutor(),
+
     }
 
     @classmethod
@@ -19,4 +29,6 @@ class ExecutorRegistry:
         action_type: str
     ):
 
-        return cls._executors.get(action_type)
+        return cls._executors.get(
+            action_type
+        )

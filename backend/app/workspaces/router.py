@@ -1,4 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request
+)
+
 from sqlalchemy.orm import Session
 
 from app.database.database import get_db
@@ -26,11 +32,27 @@ router = APIRouter(
     response_model=WorkspaceResponse,
     status_code=201
 )
-def create_workspace(
+async def create_workspace(
+    request: Request,
     workspace: WorkspaceCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+
+    raw_body = await request.body()
+
+    print("=" * 80)
+    print("RAW BODY:", raw_body)
+    print("RAW BODY TYPE:", type(raw_body))
+
+    try:
+        print("PARSED JSON:", await request.json())
+    except Exception as e:
+        print("JSON ERROR:", e)
+
+    print("PYDANTIC OBJECT:", workspace)
+    print("=" * 80)
+
     return WorkspaceService.create_workspace(
         db=db,
         workspace=workspace,
@@ -63,6 +85,7 @@ def rename_workspace(
     current_user: User = Depends(get_current_user)
 ):
     try:
+
         return WorkspaceService.rename_workspace(
             db=db,
             workspace_id=workspace_id,
@@ -71,6 +94,7 @@ def rename_workspace(
         )
 
     except ValueError as e:
+
         raise HTTPException(
             status_code=404,
             detail=str(e)

@@ -7,27 +7,18 @@ function useCreateWorkflowForm() {
 
   const [trigger, setTrigger] =
     useState(
-      "connection.accepted"
+      "LINKEDIN_COMMENT"
     );
 
   const [action, setAction] =
     useState(
-      "salesforce.create_lead"
+      "LINKEDIN_REPLY"
     );
 
-  const [firstName, setFirstName] =
+  const [keyword, setKeyword] =
     useState("");
 
-  const [lastName, setLastName] =
-    useState("");
-
-  const [company, setCompany] =
-    useState("");
-
-  const [email, setEmail] =
-    useState("");
-
-  const [phone, setPhone] =
+  const [replyMessage, setReplyMessage] =
     useState("");
 
 
@@ -46,35 +37,23 @@ function useCreateWorkflowForm() {
 
     setTrigger(
       workflow.trigger ||
-      "connection.accepted"
+      "LINKEDIN_COMMENT"
     );
 
     setAction(
       workflow.action ||
-      "salesforce.create_lead"
+      "LINKEDIN_REPLY"
     );
 
-    const lead =
-      workflow.action_configuration?.lead || {};
+    const configuration =
+      workflow.action_configuration || {};
 
-    setFirstName(
-      lead.FirstName || ""
+    setKeyword(
+      configuration.keyword || ""
     );
 
-    setLastName(
-      lead.LastName || ""
-    );
-
-    setCompany(
-      lead.Company || ""
-    );
-
-    setEmail(
-      lead.Email || ""
-    );
-
-    setPhone(
-      lead.Phone || ""
+    setReplyMessage(
+      configuration.message || ""
     );
 
   }
@@ -86,24 +65,20 @@ function useCreateWorkflowForm() {
     setName("");
 
     setTrigger(
-      "connection.accepted"
+      "LINKEDIN_COMMENT"
     );
 
     setAction(
-      "salesforce.create_lead"
+      "LINKEDIN_REPLY"
     );
 
-    setFirstName("");
+    setKeyword("");
 
-    setLastName("");
-
-    setCompany("");
-
-    setEmail("");
-
-    setPhone("");
+    setReplyMessage("");
 
   }
+
+
 
   return {
 
@@ -116,20 +91,11 @@ function useCreateWorkflowForm() {
     action,
     setAction,
 
-    firstName,
-    setFirstName,
+    keyword,
+    setKeyword,
 
-    lastName,
-    setLastName,
-
-    company,
-    setCompany,
-
-    email,
-    setEmail,
-
-    phone,
-    setPhone,
+    replyMessage,
+    setReplyMessage,
 
     populateForm,
 

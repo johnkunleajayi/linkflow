@@ -4,7 +4,8 @@ function WorkflowCard({
   prettyAction,
   onEdit,
   onDelete,
-  onViewLogs
+  onViewLogs,
+  onTest
 }) {
 
   async function handleDelete() {
@@ -27,11 +28,13 @@ function WorkflowCard({
 
   }
 
+
   function handleEdit() {
 
     onEdit(workflow);
 
   }
+
 
   function handleViewLogs() {
 
@@ -42,6 +45,18 @@ function WorkflowCard({
     }
 
   }
+
+
+  function handleTest() {
+
+    if (onTest) {
+
+      onTest(workflow);
+
+    }
+
+  }
+
 
   return (
 
@@ -96,6 +111,13 @@ function WorkflowCard({
       </div>
 
       <div className="workflow-actions">
+
+        <button
+          className="primary-btn"
+          onClick={handleTest}
+        >
+          🧪 Test
+        </button>
 
         <button
           className="secondary-btn"

@@ -3,11 +3,41 @@ const API_URL =
 
 
 
+function getWorkspace() {
+
+  const workspace =
+    JSON.parse(
+      localStorage.getItem("workspace")
+    );
+
+
+  if (!workspace) {
+
+    throw new Error(
+      "No workspace selected."
+    );
+
+  }
+
+
+  return workspace;
+
+}
+
+
+
+
 export async function getConnections() {
+
+
+  const workspace =
+    getWorkspace();
+
+
 
   const response = await fetch(
 
-    `${API_URL}/connections/workspace/1`
+    `${API_URL}/connections/workspace/${workspace.id}`
 
   );
 
@@ -21,8 +51,10 @@ export async function getConnections() {
   }
 
 
+
   const backendConnections =
     await response.json();
+
 
 
   const applications = [
@@ -45,8 +77,10 @@ export async function getConnections() {
   ];
 
 
+
   return applications.map(
     (application) => {
+
 
       const existingConnection =
         backendConnections.find(
@@ -62,6 +96,7 @@ export async function getConnections() {
         );
 
 
+
       return {
 
         name: application.name,
@@ -72,6 +107,7 @@ export async function getConnections() {
             : "DISCONNECTED"
 
       };
+
 
     }
 
@@ -87,15 +123,24 @@ export async function connectApplicationApi(
   applicationName
 ) {
 
+
+  const workspace =
+    getWorkspace();
+
+
+
   switch (applicationName) {
+
 
     case "Salesforce": {
 
+
       const response = await fetch(
 
-        `${API_URL}/oauth/salesforce?workspace_id=1`
+        `${API_URL}/oauth/salesforce?workspace_id=${workspace.id}`
 
       );
+
 
 
       if (!response.ok) {
@@ -107,25 +152,33 @@ export async function connectApplicationApi(
       }
 
 
+
       const data =
         await response.json();
 
 
+
       window.location.href =
         data.authorization_url;
+
+
 
       return;
 
     }
 
 
+
+
     case "LinkedIn": {
+
 
       const response = await fetch(
 
-        `${API_URL}/oauth/linkedin?workspace_id=1`
+        `${API_URL}/oauth/linkedin?workspace_id=${workspace.id}`
 
       );
+
 
 
       if (!response.ok) {
@@ -137,23 +190,31 @@ export async function connectApplicationApi(
       }
 
 
+
       const data =
         await response.json();
 
 
+
       window.location.href =
         data.authorization_url;
+
+
 
       return;
 
     }
 
 
+
+
     default:
+
 
       throw new Error(
         `${applicationName} is not supported yet.`
       );
+
 
   }
 
@@ -165,11 +226,18 @@ export async function connectApplicationApi(
 
 export async function getSalesforceAuthorizationUrl() {
 
+
+  const workspace =
+    getWorkspace();
+
+
+
   const response = await fetch(
 
-    `${API_URL}/oauth/salesforce?workspace_id=1`
+    `${API_URL}/oauth/salesforce?workspace_id=${workspace.id}`
 
   );
+
 
 
   if (!response.ok) {
@@ -179,6 +247,7 @@ export async function getSalesforceAuthorizationUrl() {
     );
 
   }
+
 
 
   return await response.json();

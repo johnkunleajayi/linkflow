@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import models so Alembic and SQLAlchemy know about them
@@ -10,7 +10,7 @@ from app.automation_triggers.models import AutomationTrigger
 from app.automation_actions.models import AutomationAction
 from app.execution_logs.models import ExecutionLog
 from app.connections.models import Connection
-
+from app.oauth.models import OAuthState
 
 # Import routers
 from app.linkedin.router import router as linkedin_router
@@ -47,10 +47,6 @@ app = FastAPI(
 )
 
 
-#
-# CORS
-#
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -61,6 +57,40 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+
+@app.middleware("http")
+async def log_request(request: Request, call_next):
+
+    body = await request.body()
+
+    print("\n")
+    print("=" * 80)
+    print("PATH:", request.url.path)
+    print("METHOD:", request.method)
+    print("HEADERS:", dict(request.headers))
+    print("RAW BODY:", body)
+    print("BODY TYPE:", type(body))
+
+    try:
+        print("BODY TEXT:", body.decode())
+    except Exception:
+        pass
+
+    print("=" * 80)
+
+    async def receive():
+        return {
+            "type": "http.request",
+            "body": body,
+            "more_body": False,
+        }
+
+    request._receive = receive
+
+    response = await call_next(request)
+
+    return response
 
 
 # Register routers

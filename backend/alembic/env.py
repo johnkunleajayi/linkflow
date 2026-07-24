@@ -16,6 +16,7 @@ from app.automation_triggers.models import AutomationTrigger
 from app.automation_actions.models import AutomationAction
 from app.execution_logs.models import ExecutionLog
 from app.connections.models import Connection
+from app.oauth.models import OAuthState
 
 
 config = context.config

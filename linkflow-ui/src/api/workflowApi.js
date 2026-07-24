@@ -1,6 +1,14 @@
 import apiClient from "./apiClient";
 
+
 const triggerMap = {
+
+  LINKEDIN_COMMENT:
+    "LINKEDIN_COMMENT",
+
+  "LINKEDIN_COMMENT":
+    "LINKEDIN_COMMENT",
+
   LINKEDIN_CONNECTION_ACCEPTED:
     "connection.accepted",
 
@@ -9,9 +17,21 @@ const triggerMap = {
 
   "connection.accepted":
     "connection.accepted",
+
 };
 
+
 const actionMap = {
+
+  LINKEDIN_REPLY:
+    "linkedin.reply",
+
+  "LINKEDIN_REPLY":
+    "linkedin.reply",
+
+  "linkedin.reply":
+    "linkedin.reply",
+
   SALESFORCE_CREATE_LEAD:
     "salesforce.create_lead",
 
@@ -20,30 +40,87 @@ const actionMap = {
 
   "salesforce.create_lead":
     "salesforce.create_lead",
+
 };
+
+
+
+function getAuthHeaders() {
+
+  const token =
+    localStorage.getItem(
+      "access_token"
+    );
+
+
+  return {
+
+    Authorization:
+      `Bearer ${token}`
+
+  };
+
+}
+
+
 
 export async function getWorkflows() {
 
+  const workspace =
+    JSON.parse(
+      localStorage.getItem(
+        "workspace"
+      )
+    );
+
+
+  if (!workspace) {
+
+    throw new Error(
+      "No workspace selected."
+    );
+
+  }
+
+
   return await apiClient(
 
-    "/workflows/workspace/1"
+    `/workflows/workspace/${workspace.id}`,
+
+    {
+
+      headers:
+        getAuthHeaders()
+
+    }
 
   );
 
 }
 
 
+
 export async function getExecutionLogs(
+
   automationId
+
 ) {
 
   return await apiClient(
 
-    `/execution-logs/automation/${automationId}`
+    `/execution-logs/automation/${automationId}`,
+
+    {
+
+      headers:
+        getAuthHeaders()
+
+    }
 
   );
 
 }
+
 
 
 export async function createWorkflowApi({
@@ -58,36 +135,62 @@ export async function createWorkflowApi({
 
 }) {
 
+
+  const workspace =
+    JSON.parse(
+      localStorage.getItem(
+        "workspace"
+      )
+    );
+
+
+  if (!workspace) {
+
+    throw new Error(
+      "No workspace selected."
+    );
+
+  }
+
+
+
   return await apiClient(
 
-    "/workflows/workspace/1",
+    `/workflows/workspace/${workspace.id}`,
 
     {
 
       method: "POST",
+
+      headers:
+        getAuthHeaders(),
 
       body: JSON.stringify({
 
         name,
 
         trigger:
-          triggerMap[trigger] || trigger,
+          triggerMap[trigger] ||
+          trigger,
 
         action:
-          actionMap[action] || action,
+          actionMap[action] ||
+          action,
 
         trigger_configuration: {},
 
         action_configuration:
-          actionConfiguration || {}
+          actionConfiguration ||
+          {}
 
-      }),
+      })
 
     }
 
   );
 
 }
+
 
 
 export async function updateWorkflowApi({
@@ -104,6 +207,7 @@ export async function updateWorkflowApi({
 
 }) {
 
+
   return await apiClient(
 
     `/workflows/${automationId}`,
@@ -112,20 +216,26 @@ export async function updateWorkflowApi({
 
       method: "PUT",
 
+      headers:
+        getAuthHeaders(),
+
       body: JSON.stringify({
 
         name,
 
         trigger:
-          triggerMap[trigger] || trigger,
+          triggerMap[trigger] ||
+          trigger,
 
         action:
-          actionMap[action] || action,
+          actionMap[action] ||
+          action,
 
         trigger_configuration: {},
 
         action_configuration:
-          actionConfiguration || {}
+          actionConfiguration ||
+          {}
 
       })
 
@@ -136,8 +246,11 @@ export async function updateWorkflowApi({
 }
 
 
+
 export async function deleteWorkflowApi(
+
   automationId
+
 ) {
 
   return await apiClient(
@@ -146,7 +259,10 @@ export async function deleteWorkflowApi(
 
     {
 
-      method: "DELETE"
+      method: "DELETE",
+
+      headers:
+        getAuthHeaders()
 
     }
 

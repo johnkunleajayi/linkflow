@@ -20,8 +20,12 @@ class AutomationEngine:
         db: Session,
         automation_id: int,
         event_type: str = "UNKNOWN_EVENT",
-        payload: dict | None = None
+        payload: dict | None = None,
+        event_payload: dict | None = None
     ):
+
+        if payload is None:
+            payload = event_payload or {}
 
         automation = (
             db.query(Automation)

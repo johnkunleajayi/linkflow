@@ -26,7 +26,14 @@ router = APIRouter(
 
 
 class LinkedInEvent(BaseModel):
+
     event: str
+
+    keyword: str | None = None
+
+    comment: str | None = None
+
+    author: str | None = None
 
 
 @router.post("/linkedin")
@@ -37,8 +44,14 @@ def linkedin_event(
     """
     Simulates a LinkedIn event.
 
-    Finds all matching triggers and
-    executes their automations.
+    Example payload:
+
+    {
+        "event": "comment.created",
+        "keyword": "CRM",
+        "comment": "I need a CRM",
+        "author": "John"
+    }
     """
 
     triggers = AutomationTriggerService.find_triggers_by_type(
@@ -53,17 +66,20 @@ def linkedin_event(
             detail="No automation trigger found for this event."
         )
 
-
     executions = []
-
 
     for trigger in triggers:
 
         result = AutomationEngine.execute_automation(
-            db=db,
-            automation_id=trigger.automation_id,
-            event_type=payload.event
-        )
+    db=db,
+    automation_id=trigger.automation_id,
+    event_type=payload.event,
+    payload={
+        "keyword": payload.keyword,
+        "comment": payload.comment,
+        "author": payload.author
+    }
+)
 
         executions.append(
             {
@@ -72,7 +88,6 @@ def linkedin_event(
                 "execution": result
             }
         )
-
 
     return {
         "message": "Event processed successfully.",
