@@ -51,6 +51,7 @@ class AutomationEngine:
                 "automation_name": automation.name,
                 "actions_executed": 0,
                 "results": [],
+                "commands": [],
                 "message": (
                     "Workflow skipped because "
                     "its conditions were not met."
@@ -76,11 +77,20 @@ class AutomationEngine:
             .all()
         )
 
+        print(f"\nAutomation {automation.id}: {automation.name}")
+        print(f"Enabled Actions: {len(actions)}")
+
         results = []
+        commands = []
 
         execution_status = "SUCCESS"
 
         for action in actions:
+
+            print(
+                f"  Action ID={action.id} "
+                f"Type={action.action_type}"
+            )
 
             result = ActionExecutor.execute(
                 db=db,
@@ -89,6 +99,10 @@ class AutomationEngine:
 
             results.append(result)
 
+            commands.extend(
+                result.get("commands", [])
+            )
+
             if not result.get("success", False):
                 execution_status = "FAILED"
 
@@ -96,7 +110,8 @@ class AutomationEngine:
             "automation_id": automation.id,
             "automation_name": automation.name,
             "actions_executed": len(actions),
-            "results": results
+            "results": results,
+            "commands": commands
         }
 
         ExecutionLogService.create_log(
@@ -113,14 +128,19 @@ class AutomationEngine:
 def execute_event(
     db: Session,
     event_type: str,
-    payload: dict
+    payload: dict,
+    workspace_id: int | None = None
 ):
     """
     Finds every ACTIVE automation listening
     for this event and executes it.
+
+    If workspace_id is supplied,
+    only automations belonging to that
+    workspace are executed.
     """
 
-    triggers = (
+    query = (
         db.query(AutomationTrigger)
         .join(
             Automation,
@@ -131,13 +151,35 @@ def execute_event(
             AutomationTrigger.trigger_type == event_type,
             AutomationTrigger.is_enabled == True
         )
-        .all()
     )
 
-    print("=" * 60)
-    print(f"EVENT RECEIVED: {event_type}")
-    print(f"{len(triggers)} automation(s) matched")
-    print("=" * 60)
+    if workspace_id is not None:
+
+        query = query.filter(
+            Automation.workspace_id == workspace_id
+        )
+
+    triggers = query.all()
+
+    print("\n" + "=" * 70)
+    print("EVENT RECEIVED:", event_type)
+
+    if workspace_id is None:
+        print("Workspace: ALL")
+    else:
+        print(f"Workspace: {workspace_id}")
+
+    print("Matched Triggers:", len(triggers))
+
+    for trigger in triggers:
+
+        print(
+            f"Trigger ID={trigger.id} | "
+            f"Automation ID={trigger.automation_id} | "
+            f"Trigger={trigger.trigger_type}"
+        )
+
+    print("=" * 70)
 
     executions = []
 
@@ -154,6 +196,7 @@ def execute_event(
 
     return {
         "event": event_type,
+        "workspace_id": workspace_id,
         "matched_automations": len(triggers),
         "executions": executions
     }

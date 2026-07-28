@@ -45,9 +45,8 @@ export default function Login() {
 
       if (workspaces.length === 0) {
 
-        localStorage.removeItem(
-          "workspace"
-        );
+        localStorage.removeItem("workspace");
+        localStorage.removeItem("linkflow_session");
 
         navigate("/workspace");
 
@@ -55,9 +54,21 @@ export default function Login() {
 
       }
 
+      const workspace = workspaces[0];
+
       localStorage.setItem(
         "workspace",
-        JSON.stringify(workspaces[0])
+        JSON.stringify(workspace)
+      );
+
+      // Session object for future integrations
+      localStorage.setItem(
+        "linkflow_session",
+        JSON.stringify({
+          token: data.access_token,
+          workspace_id: workspace.id,
+          workspace_name: workspace.name
+        })
       );
 
       navigate("/dashboard");

@@ -6,6 +6,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 });
 
+
 chrome.runtime.onMessage.addListener(
 
     (message, sender, sendResponse) => {
@@ -16,69 +17,113 @@ chrome.runtime.onMessage.addListener(
 
         }
 
-        (async () => {
+        chrome.storage.local.get(
 
-            try {
+            [
+                "token",
+                "workspace"
+            ],
 
-                console.log("=================================");
-                console.log("BACKGROUND RECEIVED EVENT");
-                console.log(message.payload);
-                console.log("=================================");
+            async (storage) => {
 
-                const response = await fetch(
+                try {
 
-                    "http://localhost:8000/linkedin/webhook",
+                    const token = storage.token;
+                    const workspace = storage.workspace;
 
-                    {
+                    if (!token) {
 
-                        method: "POST",
+                        sendResponse({
 
-                        headers: {
+                            success: false,
 
-                            "Content-Type": "application/json"
+                            error:
+                                "Extension is not logged in."
 
-                        },
+                        });
 
-                        body: JSON.stringify(
-                            message.payload
-                        )
+                        return;
 
                     }
 
-                );
+                    const payload = {
 
-                console.log(
-                    "HTTP STATUS:",
-                    response.status
-                );
+                        ...message.payload,
 
-                const data = await response.json();
+                        workspace_id:
+                            workspace?.id ?? null
 
-                console.log("=================================");
-                console.log("BACKGROUND RESPONSE");
-                console.log(data);
-                console.log("=================================");
+                    };
 
-                sendResponse(data);
+                    console.log("=================================");
+                    console.log("BACKGROUND RECEIVED EVENT");
+                    console.log(payload);
+                    console.log("=================================");
+
+                    const response = await fetch(
+
+                        "http://localhost:8000/linkedin/webhook",
+
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+
+                            },
+
+                            body: JSON.stringify(
+                                payload
+                            )
+
+                        }
+
+                    );
+
+                    console.log(
+                        "HTTP STATUS:",
+                        response.status
+                    );
+
+                    const data =
+                        await response.json();
+
+                    console.log("=================================");
+                    console.log("BACKGROUND RESPONSE");
+                    console.log(data);
+                    console.log("=================================");
+
+                    sendResponse(data);
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "BACKGROUND ERROR"
+                    );
+
+                    console.error(error);
+
+                    sendResponse({
+
+                        success: false,
+
+                        error: error.message
+
+                    });
+
+                }
 
             }
 
-            catch (error) {
-
-                console.error("BACKGROUND ERROR");
-                console.error(error);
-
-                sendResponse({
-
-                    success: false,
-
-                    error: error.message
-
-                });
-
-            }
-
-        })();
+        );
 
         return true;
 

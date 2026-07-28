@@ -4,17 +4,19 @@ from app.automation_actions.models import (
     AutomationAction
 )
 
+from app.execution.commands import (
+    Command,
+    CommandType
+)
+
 
 class LinkedInReplyExecutor:
     """
     Executes a LinkedIn reply action.
 
-    MVP
-
-    For now this simulates a reply.
-
-    Later this class will call the
-    LinkedIn API.
+    Instead of replying directly,
+    it returns commands that the
+    LinkedIn Extension can execute.
     """
 
     def execute(
@@ -42,7 +44,10 @@ class LinkedInReplyExecutor:
 
         return {
             "success": True,
-            "provider": "LINKEDIN",
-            "action": "reply",
-            "message": reply_message
+            "commands": [
+                Command(
+                    type=CommandType.REPLY,
+                    text=reply_message
+                ).model_dump()
+            ]
         }

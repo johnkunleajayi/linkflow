@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>LinkFlow</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+
+            margin: 0;
+            padding: 20px;
+            width: 340px;
+            background: #f8fafc;
+
+        }
+
+        h2 {
+
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #0a66c2;
+
+        }
+
+        .form-group {
+
+            margin-bottom: 15px;
+
+        }
+
+        label {
+
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: bold;
+
+        }
+
+        input {
+
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+
+        }
+
+        button {
+
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+
+        }
+
+        #loginBtn {
+
+            background: #0a66c2;
+            color: white;
+
+        }
+
+        #logoutBtn {
+
+            margin-top: 12px;
+            background: #dc2626;
+            color: white;
+            display: none;
+
+        }
+
+        #status {
+
+            margin-top: 16px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            border: 1px solid #e5e7eb;
+
+        }
+
+        #loginForm {
+
+            display: block;
+
+        }
+
+        #connectedView {
+
+            display: none;
+
+        }
+
+        .user-name {
+
+            font-weight: bold;
+            color: #111827;
+
+        }
+
+        .workspace {
+
+            color: #6b7280;
+            margin-top: 5px;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h2>LinkFlow</h2>
+
+    <div id="loginForm">
+
+        <div class="form-group">
+
+            <label>Email</label>
+
+            <input
+                id="email"
+                type="email"
+                placeholder="john@email.com"
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Password</label>
+
+            <input
+                id="password"
+                type="password"
+                placeholder="Password"
+            >
+
+        </div>
+
+        <button id="loginBtn">
+
+            Connect to LinkFlow
+
+        </button>
+
+    </div>
+
+    <div id="connectedView">
+
+        <div id="status">
+
+            <div>
+
+                Connected as
+
+            </div>
+
+            <div
+                id="userName"
+                class="user-name"
+            >
+
+                -
+
+            </div>
+
+            <div
+                id="workspaceName"
+                class="workspace"
+            >
+
+                -
+
+            </div>
+
+        </div>
+
+        <button id="logoutBtn">
+
+            Disconnect
+
+        </button>
+
+    </div>
+
+    <script src="popup.js"></script>
+
+</body>
+
+</html>

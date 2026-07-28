@@ -10,6 +10,14 @@ from app.database.database import get_db
 
 from app.execution.engine import execute_event
 
+from app.auth.dependencies import (
+    get_current_user
+)
+
+from app.auth.models import User
+
+from app.workspaces.models import Workspace
+
 
 router = APIRouter(
     prefix="/linkedin",
@@ -20,20 +28,18 @@ router = APIRouter(
 @router.post("/webhook")
 async def linkedin_webhook(
     payload: dict = Body(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user
+    )
 ):
     """
-    MVP endpoint called by the
+    Endpoint called by the
     LinkFlow Chrome Extension.
 
-    Example:
-
-    {
-        "event": "LINKEDIN_COMMENT",
-        "author": "John",
-        "comment": "I need pricing",
-        "keyword": "pricing"
-    }
+    The authenticated user determines
+    which workspace is allowed to
+    execute workflows.
     """
 
     print("=" * 60)
@@ -42,18 +48,44 @@ async def linkedin_webhook(
     print(payload)
     print("=" * 60)
 
+    workspace = (
+        db.query(Workspace)
+        .filter(
+            Workspace.owner_id == current_user.id
+        )
+        .first()
+    )
+
+    if workspace is None:
+
+        return {
+            "success": False,
+            "message": "Workspace not found."
+        }
+
     result = execute_event(
         db=db,
         event_type=payload.get("event"),
-        payload=payload
+        payload=payload,
+        workspace_id=workspace.id
     )
+
+    commands = []
+
+    for execution in result.get(
+        "executions",
+        []
+    ):
+
+        commands.extend(
+            execution.get(
+                "commands",
+                []
+            )
+        )
 
     return {
         "success": True,
-        "reply": (
-            result["executions"][0]["results"][0]["message"]
-            if result["executions"]
-            else None
-        ),
+        "commands": commands,
         "execution": result
     }

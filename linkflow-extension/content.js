@@ -2,28 +2,168 @@ console.log("🚀 LinkFlow Extension Started");
 
 let processed = new Set();
 
+let eventQueue = [];
+
+let isProcessing = false;
+
+
 function sleep(ms) {
 
     return new Promise(resolve => setTimeout(resolve, ms));
 
 }
 
+
+function enqueueEvent(event) {
+
+    eventQueue.push(event);
+
+    console.log("==================================");
+    console.log("EVENT ADDED TO QUEUE");
+    console.log("Queue Size:", eventQueue.length);
+    console.log("==================================");
+
+    processQueue();
+
+}
+
+
+async function processQueue() {
+
+    if (isProcessing) {
+
+        return;
+
+    }
+
+    if (!eventQueue.length) {
+
+        return;
+
+    }
+
+    isProcessing = true;
+
+    while (eventQueue.length) {
+
+        const event = eventQueue.shift();
+
+        console.log("==================================");
+        console.log("PROCESSING NEXT EVENT");
+        console.log("Remaining Queue:", eventQueue.length);
+        console.log("==================================");
+
+        await processEvent(event);
+
+        await sleep(1000);
+
+    }
+
+    isProcessing = false;
+
+    console.log("==================================");
+    console.log("QUEUE EMPTY");
+    console.log("==================================");
+
+}
+
+
+async function processEvent(event) {
+
+    return new Promise((resolve) => {
+
+        chrome.runtime.sendMessage(
+
+            {
+
+                type: "LINKFLOW_EVENT",
+
+                payload: {
+
+                    event: "LINKEDIN_COMMENT",
+
+                    author: event.author,
+
+                    comment: event.comment,
+
+                    keyword: event.comment
+
+                }
+
+            },
+
+            async (response) => {
+
+                console.log("==================================");
+                console.log("LINKFLOW RESPONSE");
+                console.log(response);
+                console.log("==================================");
+
+                try {
+
+                    if (!response?.success) {
+
+                        console.log("❌ Backend failed");
+
+                        resolve();
+
+                        return;
+
+                    }
+
+                    await executeCommands(
+
+                        response.commands,
+
+                        event.commentBlock
+
+                    );
+
+                }
+
+                catch (error) {
+
+                    console.error(error);
+
+                }
+
+                resolve();
+
+            }
+
+        );
+
+    });
+
+}
+
+
 async function openReplyEditor(commentContainer) {
 
-    const buttons = commentContainer.querySelectorAll("button");
+    console.log("==================================");
+    console.log("SEARCHING FOR REPLY BUTTON");
+    console.log("==================================");
+
+    const buttons =
+        commentContainer.querySelectorAll("button");
 
     for (const button of buttons) {
 
         const text =
-            button.innerText?.trim().toLowerCase();
+            button.innerText?.trim();
 
-        if (text === "reply") {
+        if (
+
+            text &&
+            text.toLowerCase() === "reply"
+
+        ) {
 
             console.log("👉 Clicking Reply");
 
             button.click();
 
-            await sleep(800);
+            await sleep(1200);
 
             return true;
 
@@ -31,11 +171,18 @@ async function openReplyEditor(commentContainer) {
 
     }
 
+    console.log("❌ Reply button not found");
+
     return false;
 
 }
 
+
 function insertReply(reply) {
+
+    console.log("==================================");
+    console.log("LOOKING FOR REPLY EDITOR");
+    console.log("==================================");
 
     const editor = document.querySelector(
 
@@ -51,9 +198,17 @@ function insertReply(reply) {
 
     }
 
+    console.log("✅ Reply editor found");
+
     editor.focus();
 
-    editor.innerHTML = `<p>${reply}</p>`;
+    editor.innerHTML = "";
+
+    const paragraph = document.createElement("p");
+
+    paragraph.textContent = reply;
+
+    editor.appendChild(paragraph);
 
     editor.dispatchEvent(
 
@@ -79,29 +234,83 @@ function insertReply(reply) {
 
 }
 
-function getReplyMessage(response) {
 
-    try {
+async function executeCommands(
+    commands,
+    commentBlock
+) {
 
-        return response
+    console.log("==================================");
+    console.log("EXECUTING COMMANDS");
+    console.log("==================================");
 
-            ?.result
+    if (!commands?.length) {
 
-            ?.executions?.[0]
+        console.log("⚠ No commands returned");
 
-            ?.results?.[0]
+        return;
 
-            ?.message;
+    }
+
+    console.log(
+        "Command Count:",
+        commands.length
+    );
+
+    for (const command of commands) {
+
+        console.log("----------------------------------");
+        console.log("Executing Command:");
+        console.log(command);
+        console.log("----------------------------------");
+
+        switch (command.type) {
+
+            case "reply":
+
+                console.log("➡ Reply command received");
+
+                const opened =
+                    await openReplyEditor(commentBlock);
+
+                console.log(
+                    "Reply Editor Opened:",
+                    opened
+                );
+
+                if (!opened) {
+
+                    console.log("❌ Couldn't find Reply button");
+
+                    continue;
+
+                }
+
+                console.log("Waiting for editor...");
+
+                await sleep(700);
+
+                insertReply(command.text);
+
+                break;
+
+            default:
+
+                console.log(
+                    "⚠ Unknown command:",
+                    command.type
+                );
+
+        }
 
     }
 
-    catch {
-
-        return null;
-
-    }
+    console.log("==================================");
+    console.log("COMMAND EXECUTION COMPLETE");
+    console.log("==================================");
 
 }
+
 
 function extractComments() {
 
@@ -131,15 +340,15 @@ function extractComments() {
 
             authorElement.innerText.trim();
 
-        let parent = container;
+        let current = container;
 
         for (let i = 0; i < 6; i++) {
 
-            if (!parent) break;
+            if (!current) break;
 
             const commentElement =
 
-                parent.querySelector(
+                current.querySelector(
 
                     'span[dir="ltr"]'
 
@@ -170,108 +379,33 @@ function extractComments() {
                 processed.add(key);
 
                 console.log("==================================");
-
                 console.log("NEW COMMENT");
-
                 console.log("Author:", author);
-
                 console.log("Comment:", comment);
-
                 console.log("==================================");
 
-                chrome.runtime.sendMessage(
+                enqueueEvent({
 
-                    {
+                    author,
 
-                        type: "LINKFLOW_EVENT",
+                    comment,
 
-                        payload: {
+                    commentBlock: current
 
-                            event: "LINKEDIN_COMMENT",
-
-                            author,
-
-                            comment,
-
-                            keyword: comment
-
-                        }
-
-                    },
-
-                    async (response) => {
-
-                        console.log("==================================");
-
-                        console.log("LINKFLOW RESPONSE");
-
-                        console.log(response);
-
-                        console.log("==================================");
-
-                        if (!response) {
-
-                            return;
-
-                        }
-
-                        const reply =
-
-                            getReplyMessage(response);
-
-                        if (!reply) {
-
-                            console.log(
-
-                                "⚠ No reply returned"
-
-                            );
-
-                            return;
-
-                        }
-
-                        console.log(
-
-                            "Reply:",
-
-                            reply
-
-                        );
-
-                        const opened =
-
-                            await openReplyEditor(parent);
-
-                        if (!opened) {
-
-                            console.log(
-
-                                "❌ Couldn't find Reply button"
-
-                            );
-
-                            return;
-
-                        }
-
-                        insertReply(reply);
-
-                    }
-
-                );
+                });
 
                 return;
 
             }
 
-            parent = parent.parentElement;
+            current = current.parentElement;
 
         }
 
     });
 
 }
+
 
 const observer = new MutationObserver(() => {
 

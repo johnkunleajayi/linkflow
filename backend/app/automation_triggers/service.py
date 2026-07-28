@@ -148,7 +148,7 @@ class AutomationTriggerService:
         an incoming event.
         """
 
-        return (
+        triggers = (
             db.query(AutomationTrigger)
             .join(Automation)
             .filter(
@@ -158,3 +158,22 @@ class AutomationTriggerService:
             )
             .all()
         )
+
+        print("\n" + "=" * 70)
+        print("LINKFLOW TRIGGER LOOKUP")
+        print("=" * 70)
+        print(f"Incoming Event : {trigger_type}")
+        print(f"Matched Triggers : {len(triggers)}")
+
+        for trigger in triggers:
+
+            print(
+                f"Trigger ID={trigger.id} | "
+                f"Automation ID={trigger.automation_id} | "
+                f"Type={trigger.trigger_type} | "
+                f"Enabled={trigger.is_enabled}"
+            )
+
+        print("=" * 70)
+
+        return triggers

@@ -42,16 +42,9 @@ def linkedin_event(
     db: Session = Depends(get_db)
 ):
     """
-    Simulates a LinkedIn event.
-
-    Example payload:
-
-    {
-        "event": "comment.created",
-        "keyword": "CRM",
-        "comment": "I need a CRM",
-        "author": "John"
-    }
+    Processes a LinkedIn event and
+    returns executable commands for
+    the LinkFlow Extension.
     """
 
     triggers = AutomationTriggerService.find_triggers_by_type(
@@ -66,20 +59,25 @@ def linkedin_event(
             detail="No automation trigger found for this event."
         )
 
+    commands = []
     executions = []
 
     for trigger in triggers:
 
         result = AutomationEngine.execute_automation(
-    db=db,
-    automation_id=trigger.automation_id,
-    event_type=payload.event,
-    payload={
-        "keyword": payload.keyword,
-        "comment": payload.comment,
-        "author": payload.author
-    }
-)
+            db=db,
+            automation_id=trigger.automation_id,
+            event_type=payload.event,
+            payload={
+                "keyword": payload.keyword,
+                "comment": payload.comment,
+                "author": payload.author
+            }
+        )
+
+        commands.extend(
+            result.get("commands", [])
+        )
 
         executions.append(
             {
@@ -90,8 +88,8 @@ def linkedin_event(
         )
 
     return {
-        "message": "Event processed successfully.",
+        "success": True,
         "event": payload.event,
-        "triggers_processed": len(triggers),
+        "commands": commands,
         "executions": executions
     }
