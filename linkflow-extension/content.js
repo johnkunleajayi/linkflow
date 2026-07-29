@@ -1,11 +1,60 @@
-console.log("🚀 LinkFlow Extension Started");
+console.log("🚀 LinkFlow Content Engine V2 Started");
 
-let processed = new Set();
+/* ==========================================================
+   CONFIG
+========================================================== */
 
-let eventQueue = [];
+const CONFIG = {
+
+    QUEUE_DELAY: 1000,
+
+    EDITOR_DELAY: 700,
+
+    REPLY_CLICK_DELAY: 1200,
+
+    MAX_PARENT_SEARCH: 12
+
+};
+
+/* ==========================================================
+   STATE
+========================================================== */
+
+const processed = new Set();
+
+const eventQueue = [];
 
 let isProcessing = false;
 
+/* ==========================================================
+   LOGGER
+========================================================== */
+
+function divider() {
+
+    console.log("==================================");
+
+}
+
+function log(title, data = null) {
+
+    divider();
+
+    console.log(title);
+
+    if (data) {
+
+        console.log(data);
+
+    }
+
+    divider();
+
+}
+
+/* ==========================================================
+   HELPERS
+========================================================== */
 
 function sleep(ms) {
 
@@ -13,20 +62,189 @@ function sleep(ms) {
 
 }
 
+function hasClass(node, className) {
+
+    return node?.classList?.contains(className);
+
+}
+
+/* ==========================================================
+   THREAD DISCOVERY
+========================================================== */
+
+function getThreadItem(element) {
+
+    let current = element;
+
+    for (
+
+        let i = 0;
+
+        i < CONFIG.MAX_PARENT_SEARCH;
+
+        i++
+
+    ) {
+
+        if (!current) {
+
+            break;
+
+        }
+
+        if (
+
+            hasClass(
+
+                current,
+
+                "comments-thread-item"
+
+            )
+
+        ) {
+
+            return current;
+
+        }
+
+        current = current.parentElement;
+
+    }
+
+    return null;
+
+}
+
+/* ==========================================================
+   DOM HELPERS
+========================================================== */
+
+function getReplyButton(threadItem) {
+
+    return threadItem.querySelector(
+
+        ".comments-comment-social-bar__reply-action-button--cr"
+
+    );
+
+}
+
+async function getReplyEditor(threadItem) {
+
+    const scope =
+    threadItem.closest(".comments-comment-entity") ||
+    document;
+
+for (let i = 0; i < 20; i++) {
+
+    const editor = scope.querySelector(
+        ".comments-comment-box--reply .ql-editor[contenteditable='true']"
+    );
+
+    if (editor) {
+        return editor;
+    }
+
+    await sleep(200);
+}
+
+return null;
+
+    if (!threadEntity) {
+        return null;
+    }
+
+    for (let i = 0; i < 20; i++) {
+
+        const editor = threadEntity.querySelector(
+            ".comments-comment-box--reply .ql-editor[contenteditable='true']"
+        );
+
+        if (editor) {
+            return editor;
+        }
+
+        await sleep(200);
+    }
+
+    return null;
+
+}
+
+function getAuthor(threadItem) {
+
+    const element = threadItem.querySelector(
+
+        ".comments-comment-meta__description-title"
+
+    );
+
+    return element
+
+        ? element.innerText.trim()
+
+        : "";
+
+}
+
+function getComment(threadItem) {
+
+    const spans = threadItem.querySelectorAll(
+
+        "span[dir='ltr']"
+
+    );
+
+    for (const span of spans) {
+
+        const text = span.innerText.trim();
+
+        if (
+
+            text &&
+
+            text !== "Like" &&
+
+            text !== "Reply"
+
+        ) {
+
+            return text;
+
+        }
+
+    }
+
+    return "";
+
+}
+
+/* ==========================================================
+   QUEUE
+========================================================== */
 
 function enqueueEvent(event) {
 
     eventQueue.push(event);
 
-    console.log("==================================");
-    console.log("EVENT ADDED TO QUEUE");
-    console.log("Queue Size:", eventQueue.length);
-    console.log("==================================");
+    log(
+
+        "EVENT ADDED TO QUEUE",
+
+        {
+
+            queueSize:
+
+                eventQueue.length
+
+        }
+
+    );
 
     processQueue();
 
 }
-
 
 async function processQueue() {
 
@@ -46,27 +264,46 @@ async function processQueue() {
 
     while (eventQueue.length) {
 
-        const event = eventQueue.shift();
+        const event =
 
-        console.log("==================================");
-        console.log("PROCESSING NEXT EVENT");
-        console.log("Remaining Queue:", eventQueue.length);
-        console.log("==================================");
+            eventQueue.shift();
+
+        log(
+
+            "PROCESSING EVENT",
+
+            {
+
+                remaining:
+
+                    eventQueue.length,
+
+                author:
+
+                    event.author
+
+            }
+
+        );
 
         await processEvent(event);
 
-        await sleep(1000);
+        await sleep(
+
+            CONFIG.QUEUE_DELAY
+
+        );
 
     }
 
     isProcessing = false;
 
-    console.log("==================================");
-    console.log("QUEUE EMPTY");
-    console.log("==================================");
-
+    log("QUEUE EMPTY");
 }
 
+/* ==========================================================
+   BACKEND
+========================================================== */
 
 async function processEvent(event) {
 
@@ -76,17 +313,27 @@ async function processEvent(event) {
 
             {
 
-                type: "LINKFLOW_EVENT",
+                type:
+
+                    "LINKFLOW_EVENT",
 
                 payload: {
 
-                    event: "LINKEDIN_COMMENT",
+                    event:
 
-                    author: event.author,
+                        "LINKEDIN_COMMENT",
 
-                    comment: event.comment,
+                    author:
 
-                    keyword: event.comment
+                        event.author,
+
+                    comment:
+
+                        event.comment,
+
+                    keyword:
+
+                        event.comment
 
                 }
 
@@ -94,16 +341,21 @@ async function processEvent(event) {
 
             async (response) => {
 
-                console.log("==================================");
-                console.log("LINKFLOW RESPONSE");
-                console.log(response);
-                console.log("==================================");
+                log(
+
+                    "BACKEND RESPONSE",
+
+                    response
+
+                );
 
                 try {
 
-                    if (!response?.success) {
+                    if (
 
-                        console.log("❌ Backend failed");
+                        !response?.success
+
+                    ) {
 
                         resolve();
 
@@ -115,15 +367,15 @@ async function processEvent(event) {
 
                         response.commands,
 
-                        event.commentBlock
+                        event.threadItem
 
                     );
 
                 }
 
-                catch (error) {
+                catch (e) {
 
-                    console.error(error);
+                    console.error(e);
 
                 }
 
@@ -137,78 +389,73 @@ async function processEvent(event) {
 
 }
 
+/* ==========================================================
+   REPLY CONTROLLER
+========================================================== */
 
-async function openReplyEditor(commentContainer) {
+async function openReplyEditor(threadItem) {
 
-    console.log("==================================");
-    console.log("SEARCHING FOR REPLY BUTTON");
-    console.log("==================================");
+    log("OPENING REPLY EDITOR");
 
-    const buttons =
-        commentContainer.querySelectorAll("button");
+    const replyButton = getReplyButton(threadItem);
 
-    for (const button of buttons) {
+    if (!replyButton) {
 
-        const text =
-            button.innerText?.trim();
+        log("❌ Reply button not found");
 
-        if (
-
-            text &&
-            text.toLowerCase() === "reply"
-
-        ) {
-
-            console.log("👉 Clicking Reply");
-
-            button.click();
-
-            await sleep(1200);
-
-            return true;
-
-        }
+        return false;
 
     }
 
-    console.log("❌ Reply button not found");
+    replyButton.click();
 
-    return false;
+    await sleep(CONFIG.REPLY_CLICK_DELAY);
+
+    console.log("========== THREAD AFTER CLICK ==========");
+
+    console.log(threadItem.outerHTML);
+
+    console.log("========================================");
+
+    return true;
 
 }
 
+/* ==========================================================
+   EDITOR CONTROLLER
+========================================================== */
 
-function insertReply(reply) {
-
-    console.log("==================================");
-    console.log("LOOKING FOR REPLY EDITOR");
-    console.log("==================================");
-
-    const editor = document.querySelector(
-
-        ".ql-editor[contenteditable='true']"
-
-    );
-
-    if (!editor) {
-
-        console.log("❌ Reply editor not found");
-
-        return;
-
-    }
-
-    console.log("✅ Reply editor found");
+function clearEditor(editor) {
 
     editor.focus();
 
     editor.innerHTML = "";
 
-    const paragraph = document.createElement("p");
+}
 
-    paragraph.textContent = reply;
+function dispatchEditorEvents(editor, text) {
 
-    editor.appendChild(paragraph);
+    editor.dispatchEvent(
+
+        new InputEvent(
+
+            "beforeinput",
+
+            {
+
+                bubbles: true,
+
+                cancelable: true,
+
+                inputType: "insertText",
+
+                data: text
+
+            }
+
+        )
+
+    );
 
     editor.dispatchEvent(
 
@@ -222,7 +469,7 @@ function insertReply(reply) {
 
                 inputType: "insertText",
 
-                data: reply
+                data: text
 
             }
 
@@ -230,175 +477,301 @@ function insertReply(reply) {
 
     );
 
-    console.log("✅ Reply inserted");
+}
+
+async function insertReply(threadItem, reply) {
+
+    log("LOOKING FOR REPLY EDITOR");
+
+    const editor = await getReplyEditor(threadItem);
+
+    if (!editor) {
+
+        log("❌ Reply editor not found");
+
+        return false;
+
+    }
+
+    log("✅ Reply editor found");
+
+    editor.focus();
+
+    const paragraph = editor.querySelector("p");
+
+    if (paragraph) {
+
+        paragraph.innerHTML = "";
+
+        paragraph.appendChild(
+
+            document.createTextNode(reply)
+
+        );
+
+    } else {
+
+        editor.innerHTML = `<p>${reply}</p>`;
+
+    }
+
+    editor.dispatchEvent(
+
+        new InputEvent("beforeinput", {
+
+            bubbles: true,
+
+            cancelable: true,
+
+            inputType: "insertText",
+
+            data: reply
+
+        })
+
+    );
+
+    editor.dispatchEvent(
+
+        new InputEvent("input", {
+
+            bubbles: true,
+
+            inputType: "insertText",
+
+            data: reply
+
+        })
+
+    );
+
+    log("✅ Reply inserted");
+
+    return true;
 
 }
 
+/* ==========================================================
+   COMMAND EXECUTOR
+========================================================== */
 
-async function executeCommands(
-    commands,
-    commentBlock
-) {
+async function executeReply(command, threadItem) {
 
-    console.log("==================================");
-    console.log("EXECUTING COMMANDS");
-    console.log("==================================");
+    log(
 
-    if (!commands?.length) {
+        "EXECUTING REPLY",
 
-        console.log("⚠ No commands returned");
+        command
+
+    );
+
+    const opened =
+
+        await openReplyEditor(
+
+            threadItem
+
+        );
+
+    if (!opened) {
 
         return;
 
     }
 
-    console.log(
-        "Command Count:",
-        commands.length
+    await sleep(
+
+        CONFIG.EDITOR_DELAY
+
     );
 
-    for (const command of commands) {
+    await insertReply(
 
-        console.log("----------------------------------");
-        console.log("Executing Command:");
-        console.log(command);
-        console.log("----------------------------------");
+        threadItem,
+
+        command.text
+
+    );
+
+}
+
+async function executeCommands(
+
+    commands,
+
+    threadItem
+
+) {
+
+    log(
+
+        "EXECUTING COMMANDS",
+
+        {
+
+            count:
+
+                commands?.length || 0
+
+        }
+
+    );
+
+    if (!commands?.length) {
+
+        return;
+
+    }
+
+    for (const command of commands) {
 
         switch (command.type) {
 
             case "reply":
 
-                console.log("➡ Reply command received");
+                await executeReply(
 
-                const opened =
-                    await openReplyEditor(commentBlock);
+                    command,
 
-                console.log(
-                    "Reply Editor Opened:",
-                    opened
+                    threadItem
+
                 );
 
-                if (!opened) {
+                break;
 
-                    console.log("❌ Couldn't find Reply button");
+            case "like":
 
-                    continue;
+                log(
 
-                }
+                    "LIKE command not implemented"
 
-                console.log("Waiting for editor...");
+                );
 
-                await sleep(700);
+                break;
 
-                insertReply(command.text);
+            case "follow":
+
+                log(
+
+                    "FOLLOW command not implemented"
+
+                );
+
+                break;
+
+            case "connect":
+
+                log(
+
+                    "CONNECT command not implemented"
+
+                );
+
+                break;
+
+            case "message":
+
+                log(
+
+                    "MESSAGE command not implemented"
+
+                );
 
                 break;
 
             default:
 
-                console.log(
-                    "⚠ Unknown command:",
-                    command.type
+                log(
+
+                    "UNKNOWN COMMAND",
+
+                    command
+
                 );
 
         }
 
     }
 
-    console.log("==================================");
-    console.log("COMMAND EXECUTION COMPLETE");
-    console.log("==================================");
+    log(
 
-}
-
-
-function extractComments() {
-
-    const authors = document.querySelectorAll(
-
-        ".comments-comment-meta__container"
+        "COMMAND EXECUTION COMPLETE"
 
     );
 
-    authors.forEach((container) => {
+}
 
-        const authorElement =
+/* ==========================================================
+   COMMENT DETECTION ENGINE
+========================================================== */
 
-            container.querySelector(
+function extractComments() {
 
-                ".comments-comment-meta__description-title"
+    const threadItems = document.querySelectorAll(
 
-            );
+        ".comments-thread-item"
 
-        if (!authorElement) {
+    );
 
-            return;
+    threadItems.forEach((threadItem) => {
 
-        }
+        try {
 
-        const author =
+            const author = getAuthor(threadItem);
 
-            authorElement.innerText.trim();
+            const comment = getComment(threadItem);
 
-        let current = container;
-
-        for (let i = 0; i < 6; i++) {
-
-            if (!current) break;
-
-            const commentElement =
-
-                current.querySelector(
-
-                    'span[dir="ltr"]'
-
-                );
-
-            if (commentElement) {
-
-                const comment =
-
-                    commentElement.innerText.trim();
-
-                if (!comment) {
-
-                    return;
-
-                }
-
-                const key =
-
-                    author + comment;
-
-                if (processed.has(key)) {
-
-                    return;
-
-                }
-
-                processed.add(key);
-
-                console.log("==================================");
-                console.log("NEW COMMENT");
-                console.log("Author:", author);
-                console.log("Comment:", comment);
-                console.log("==================================");
-
-                enqueueEvent({
-
-                    author,
-
-                    comment,
-
-                    commentBlock: current
-
-                });
+            if (!author || !comment) {
 
                 return;
 
             }
 
-            current = current.parentElement;
+            const key = `${author}:${comment}`;
+
+            if (processed.has(key)) {
+
+                return;
+
+            }
+
+            processed.add(key);
+
+            log(
+
+                "NEW COMMENT DETECTED",
+
+                {
+
+                    author,
+
+                    comment
+
+                }
+
+            );
+
+            enqueueEvent({
+
+                author,
+
+                comment,
+
+                threadItem
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+
+                "Comment extraction failed:",
+
+                error
+
+            );
 
         }
 
@@ -406,12 +779,19 @@ function extractComments() {
 
 }
 
+/* ==========================================================
+   MUTATION OBSERVER
+========================================================== */
 
-const observer = new MutationObserver(() => {
+const observer = new MutationObserver(
 
-    extractComments();
+    () => {
 
-});
+        extractComments();
+
+    }
+
+);
 
 observer.observe(
 
@@ -427,4 +807,167 @@ observer.observe(
 
 );
 
-extractComments();
+/* ==========================================================
+   STARTUP
+========================================================== */
+
+function initialize() {
+
+    log(
+
+        "LINKFLOW CONTENT ENGINE READY"
+
+    );
+
+    extractComments();
+
+}
+
+initialize();
+
+/* ==========================================================
+   DEBUG HELPERS
+   (Accessible from DevTools Console)
+========================================================== */
+
+window.LinkFlowDebug = {
+
+    processed,
+
+    eventQueue,
+
+    extractComments,
+
+    getThreadItem,
+
+    getReplyButton,
+
+    getReplyEditor,
+
+    getAuthor,
+
+    getComment,
+
+    async inspectCurrentSelection() {
+
+        const selection =
+
+            window.getSelection();
+
+        if (
+
+            !selection ||
+
+            !selection.anchorNode
+
+        ) {
+
+            console.log(
+
+                "No active selection."
+
+            );
+
+            return;
+
+        }
+
+        const element =
+
+            selection.anchorNode.parentElement;
+
+        const threadItem =
+
+            getThreadItem(element);
+
+        console.log({
+
+            element,
+
+            threadItem,
+
+            author: threadItem
+
+                ? getAuthor(threadItem)
+
+                : null,
+
+            comment: threadItem
+
+                ? getComment(threadItem)
+
+                : null,
+
+            replyButton: threadItem
+
+                ? getReplyButton(threadItem)
+
+                : null,
+
+            replyEditor: threadItem
+
+                ? getReplyEditor(threadItem)
+
+                : null
+
+        });
+
+    },
+
+    async testReply(text = "Hello from LinkFlow 🚀") {
+
+        const threadItem =
+
+            document.querySelector(
+
+                ".comments-thread-item"
+
+            );
+
+        if (!threadItem) {
+
+            console.log(
+
+                "No thread found."
+
+            );
+
+            return;
+
+        }
+
+        console.log(
+
+            "Testing reply on:",
+
+            getAuthor(threadItem)
+
+        );
+
+        await openReplyEditor(
+
+            threadItem
+
+        );
+
+        await sleep(
+
+            CONFIG.EDITOR_DELAY
+
+        );
+
+        await insertReply(
+
+            threadItem,
+
+            text
+
+        );
+
+    }
+
+};
+
+log(
+    "LINKFLOW CONTENT ENGINE V2 INITIALIZED"
+);
