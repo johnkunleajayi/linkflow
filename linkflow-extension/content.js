@@ -585,13 +585,18 @@ async function executeReply(command, threadItem) {
 
     );
 
-    await insertReply(
+    const inserted = await insertReply(
+    threadItem,
+    command.text
+);
 
-        threadItem,
+if (!inserted) {
+    return;
+}
 
-        command.text
+await sleep(500);
 
-    );
+await submitReply(threadItem);
 
 }
 
@@ -705,6 +710,21 @@ async function executeCommands(
    COMMENT DETECTION ENGINE
 ========================================================== */
 
+function hasMyReply(threadItem) {
+
+    const replies = threadItem.querySelectorAll(
+        ".comments-comment-meta__description-title"
+    );
+
+    console.log("FOUND TITLES:", replies.length);
+
+    replies.forEach(r =>
+        console.log("TITLE:", r.innerText.trim())
+    );
+
+    return false;
+}
+
 function extractComments() {
 
     const threadItems = document.querySelectorAll(
@@ -720,6 +740,14 @@ function extractComments() {
             const author = getAuthor(threadItem);
 
             const comment = getComment(threadItem);
+
+            if (hasMyReply(threadItem)) {
+
+                log("SKIPPING - Already replied");
+
+                return;
+
+            }
 
             if (!author || !comment) {
 
@@ -968,6 +996,36 @@ window.LinkFlowDebug = {
 
 };
 
-log(
-    "LINKFLOW CONTENT ENGINE V2 INITIALIZED"
-);
+function getSubmitButton(threadItem) {
+
+    const scope =
+        threadItem.closest(".comments-comment-entity") ||
+        document;
+
+    return scope.querySelector(
+        ".comments-comment-box__submit-button--cr"
+    );
+
+}
+
+async function submitReply(threadItem) {
+
+    log("SUBMITTING REPLY");
+
+    const button = getSubmitButton(threadItem);
+
+    if (!button) {
+
+        log("❌ Submit button not found");
+
+        return false;
+
+    }
+
+    button.click();
+
+    log("✅ Reply submitted");
+
+    return true;
+
+}
